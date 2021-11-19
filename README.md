@@ -1,19 +1,15 @@
 # LiveviewChat
 
-To start your Phoenix server:
 
-  * Install dependencies with `mix deps.get`
-  * Create and migrate your database with `mix ecto.setup`
-  * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+Let's start by creating the new `liveview_chat` Phoenix application.
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+```sh
+mix phx.new liveview_chat --no-mailer --no-dashboard
+```
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+We don't need mail or dashboard features. You can learn more about creating
+a new Phoenix application with `mix help phx.new`
 
-## Learn more
-
-  * Official website: https://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Forum: https://elixirforum.com/c/phoenix-forum
-  * Source: https://github.com/phoenixframework/phoenix
+Run `mix deps.get` to retreive the dependencies, then make sure you have
+the `liveview_chat_dev` Postgres database available. You should now be able to
+start the application with `mix phx.server`.
