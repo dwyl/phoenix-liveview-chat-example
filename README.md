@@ -122,9 +122,23 @@ Finally you can delete all the default generated code linked to the `PageControl
 - rm -r lib/liveview_chat_web/templates/page
 
 You can now run the test with `mix test` command:
+
 ![image](https://user-images.githubusercontent.com/6057298/142856124-5c2d9cc6-9208-4567-b781-0b46081cfed1.png)
 
 
 ### Migration and Schema
+
+Now that we have the liveView structure defined,
+we can start to focus on creating messages.
+The database will save the message and the name of the user.
+So we can create a new schema and migration:
+
+```sh
+mix phx.gen.schema Message messages name:string message:string
+```
+
+
+
+
 
 
