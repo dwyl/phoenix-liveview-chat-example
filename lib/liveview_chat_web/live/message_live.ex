@@ -11,4 +11,14 @@ defmodule LiveviewChatWeb.MessageLive do
   def render(assigns) do
     LiveviewChatWeb.MessageView.render("message.html", assigns)
   end
+
+  def handle_event("new_message", %{"message" => params}, socket) do
+    case Message.create_message(params) do
+      {:error, changeset} ->
+        {:noreply, assign(socket, changeset: changeset)}
+
+      {:ok, _message} ->
+        {:noreply, socket}
+    end
+  end
 end

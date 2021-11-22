@@ -264,4 +264,39 @@ If we look at the server log, we see the following:
     (liveview_chat 0.1.0) LiveviewChatWeb.MessageLive.handle_event("new_message", %{"_csrf_token" => "fyVPIls_XRBuGwlkMhxsFAciRRkpAVUOLW5k4UoR7JF1uZ5z2Dundigv", "message" => %{"message" => "", "name" => ""}}, #Phoenix.LiveView.Socket
 ```
 
+On submit the form is creating a new event defined with `phx-submit`:
+
+```elixir
+<.form let={f} for={@changeset}, id="form", phx-submit="new_message">
+```
+
+However this event is not managed on the server yet, we can fix this by adding the
+`handle_event` function in `lib/liveview_chat_web/live/message_live.ex`:
+
+```elixir
+def handle_event("new_message", %{"message" => params}, socket) do
+  case Message.create_message(params) do
+    {:error, changeset} ->
+      {:noreply, assign(socket, changeset: changeset)}
+
+    {:ok, _message} ->
+      {:noreply, socket}
+    end
+end
+```
+
+The `create_message` function is called with the values from the form.
+If an error occurs while trying to save the information in the database,
+for example the changeset can returns an error if the name or the message is
+empty or if the message is too short, the changeset is assign again to the socket.
+This will allow the form to display the error information:
+
+![image](https://user-images.githubusercontent.com/6057298/142921586-2ed0e7b4-c2a1-4cd2-ab87-154ff4e9f4d8.png)
+
+If the message is saved without any errors the tuple `{:noreply, socket}` is returned.
+If you reload the page you should be able to see the messages created:
+
+![image](https://user-images.githubusercontent.com/6057298/142921871-2feb20c2-906e-4640-8781-f8ea776dc05b.png)
+
+
 ## PubSub
