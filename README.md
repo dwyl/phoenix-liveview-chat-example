@@ -90,4 +90,41 @@ Now if you refresh the page you should see the following:
 
 ![live view page](https://user-images.githubusercontent.com/6057298/142659332-bc15ed66-195a-482f-8925-ec6c57c478c0.png)
 
+At this point we want to update the tests!
+Create the `test/liveview_chat_web/live` folder and the `message_live_test.exs`:
+
+```elixir
+defmodule LiveviewChatWeb.MessageLiveTest do
+  use LiveviewChatWeb.ConnCase
+  import Phoenix.LiveViewTest
+
+  test "disconnected and connected mount", %{conn: conn} do
+    conn = get(conn, "/")
+    assert html_response(conn, 200) =~ "<h1>LiveView Message Page</h1>"
+
+    {:ok, _view, _html} = live(conn)
+  end
+end
+
+```
+
+We are testing the `/` endpoint is accessible when the socket is not yet connected,
+then when it is with the `live`function.
+
+See also the [LiveViewTest module](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveViewTest.html)
+for more information about testing and liveView.
+
+Finally you can delete all the default generated code linked to the `PageController`.
+- rm test/liveview_chat_web/controllers/page_controller_test.exs
+- rm lib/liveview_chat_web/controllers/page_controller.ex
+- rm test/liveview_chat_web/views/page_view_test.exs
+- rm lib/liveview_chat_web/views/page_view.ex
+- rm -r lib/liveview_chat_web/templates/page
+
+You can now run the test with `mix test` command:
+![image](https://user-images.githubusercontent.com/6057298/142856124-5c2d9cc6-9208-4567-b781-0b46081cfed1.png)
+
+
+### Migration and Schema
+
 
