@@ -231,11 +231,21 @@ If we now update the `message.htlm.heex` file to:
 ```
 
 
+
+
 We should see the following page:
 
 ![image](https://user-images.githubusercontent.com/6057298/142882923-db490aea-5af6-49d4-9e45-38c75d05e234.png)
 
-Let's make sure the test are still passing by updating the `assert` to:
+
+the `<.form></.form>` syntax is how to use the form [function component](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html#content).
+> A function component is any function that receives an assigns map as argument and returns a rendered struct built with the ~H sigil.
+
+
+
+
+
+Finally let's make sure the test are still passing by updating the `assert` to:
 
 ```elixir
 assert html_response(conn, 200) =~ "<h1>LiveView Chat Example</h1>"
@@ -244,5 +254,14 @@ assert html_response(conn, 200) =~ "<h1>LiveView Chat Example</h1>"
 As we have deleted the `LiveView Message Page` h1 title, we can test instead
 the title in the root layout and make sure the page is still displayed correctly.
 
+## Handle events
 
+At the moment if we submit the form nothing happen.
+If we look at the server log, we see the following:
 
+```sh
+** (UndefinedFunctionError) function LiveviewChatWeb.MessageLive.handle_event/3 is undefined or private
+    (liveview_chat 0.1.0) LiveviewChatWeb.MessageLive.handle_event("new_message", %{"_csrf_token" => "fyVPIls_XRBuGwlkMhxsFAciRRkpAVUOLW5k4UoR7JF1uZ5z2Dundigv", "message" => %{"message" => "", "name" => ""}}, #Phoenix.LiveView.Socket
+```
+
+## PubSub
