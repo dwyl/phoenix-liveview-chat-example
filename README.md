@@ -1,10 +1,9 @@
+<div align="center">
+
 # LiveviewChat
 
 [![Elixir CI](https://github.com/dwyl/phoenix-liveview-chat-example/actions/workflows/cy.yml/badge.svg)](https://github.com/dwyl/phoenix-liveview-chat-example/actions/workflows/cy.yml)
-  [![HitCount](http://hits.dwyl.com/dwyl/phoenix-liveview-chat-example.svg?style=flat-square)](http://hits.dwyl.com/dwyl/phoenix-liveview-chat-example)
-  
-
-<div align="center">
+[![HitCount](http://hits.dwyl.com/dwyl/phoenix-liveview-chat-example.svg?style=flat-square)](http://hits.dwyl.com/dwyl/phoenix-liveview-chat-example)
   
 **Try it**: [**liveview-chat-example.herokuapp**](https://liveview-chat-example.herokuapp.com)
   
