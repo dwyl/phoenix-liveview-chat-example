@@ -18,7 +18,8 @@ defmodule LiveviewChatWeb.MessageLive do
         {:noreply, assign(socket, changeset: changeset)}
 
       {:ok, _message} ->
-        {:noreply, socket}
+        changeset = Message.changeset(%Message{}, %{"name" => params["name"]})
+        {:noreply, assign(socket, changeset: changeset)}
     end
   end
 end

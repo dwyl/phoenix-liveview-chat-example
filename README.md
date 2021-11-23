@@ -280,7 +280,8 @@ def handle_event("new_message", %{"message" => params}, socket) do
       {:noreply, assign(socket, changeset: changeset)}
 
     {:ok, _message} ->
-      {:noreply, socket}
+      changeset = Message.changeset(%Message{}, %{"name" => params["name"]})
+      {:noreply, assign(socket, changeset: changeset)}
     end
 end
 ```
@@ -293,8 +294,11 @@ This will allow the form to display the error information:
 
 ![image](https://user-images.githubusercontent.com/6057298/142921586-2ed0e7b4-c2a1-4cd2-ab87-154ff4e9f4d8.png)
 
-If the message is saved without any errors the tuple `{:noreply, socket}` is returned.
-If you reload the page you should be able to see the messages created:
+If the message is saved without any errors,
+we are creating a new changeset which contains the name from the form
+to avoid people to enter their name again in the form, and we assign the new
+changeset to the socket.
+
 
 ![image](https://user-images.githubusercontent.com/6057298/142921871-2feb20c2-906e-4640-8781-f8ea776dc05b.png)
 
