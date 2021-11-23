@@ -5,7 +5,9 @@
   
 
 <div align="center">
-**Try it**: [**liveview-chat-example.herokuapp**]("https://liveview-chat-example.herokuapp.com")
+  
+**Try it**: [**liveview-chat-example.herokuapp**](https://liveview-chat-example.herokuapp.com)
+  
 </div>
 
 ## Content
