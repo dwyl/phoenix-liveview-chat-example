@@ -431,3 +431,30 @@ end
 When the event is received, the new message is added to the list of messages.
 The new list is then assign to the socket which will update the UI and display
 the new message.
+
+Add the following tests to make sure that messages are correctly displayed on the page:
+
+```elixir
+  test "message form submitted correctly", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/")
+
+    assert view
+           |> form("#form", message: %{name: "Simon", message: "hi"})
+           |> render_submit()
+
+    assert render(view) =~ "<b>Simon:</b>"
+    assert render(view) =~ "hi"
+  end
+
+  test "handle_info/2", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/")
+    assert render(view)
+    # send :created_message event when the message is created
+    Message.create_message(%{"name" => "Simon", "message" => "hello"})
+    # test that the name and the message is displayed
+    assert render(view) =~ "<b>Simon:</b>"
+    assert render(view) =~ "hello"
+  end
+```
+
+You should now have a functional chat application use liveView!

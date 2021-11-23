@@ -35,6 +35,17 @@ defmodule LiveviewChatWeb.MessageLiveTest do
            |> render_submit() =~ "should be at least 2 character(s)"
   end
 
+  test "message form submitted correctly", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/")
+
+    assert view
+           |> form("#form", message: %{name: "Simon", message: "hi"})
+           |> render_submit()
+
+    assert render(view) =~ "<b>Simon:</b>"
+    assert render(view) =~ "hi"
+  end
+
   test "handle_info/2", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
     assert render(view)
