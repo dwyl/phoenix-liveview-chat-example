@@ -15,7 +15,7 @@ mix phx.new liveview_chat --no-mailer --no-dashboard
 We don't need mail or dashboard features. You can learn more about creating
 a new Phoenix application with `mix help phx.new`
 
-Run `mix deps.get` to retreive the dependencies, then make sure you have
+Run `mix deps.get` to retrieve the dependencies, then make sure you have
 the `liveview_chat_dev` Postgres database available.
 You should now be able to start the application with `mix phx.server`:
 
@@ -52,8 +52,8 @@ end
 ```
 
 A liveView controller requires the function `mount` and `render` to be defined.
-To keep the controller simple we are just retruning the {:ok, socket} tuple
-without any changes and the render view call the `message.html.heex` template.
+To keep the controller simple we are just returning the {:ok, socket} tuple
+without any changes and the render view calls the `message.html.heex` template.
 So let's create now the `MessageView` module and the `message` template:
 
 Similar to normal Phoenix view create the `lib/liveview_chat_web/views/message_view.ex`
@@ -108,18 +108,18 @@ end
 
 ```
 
-We are testing the `/` endpoint is accessible when the socket is not yet connected,
-then when it is with the `live`function.
+We are testing that the `/` endpoint is accessible when the socket is not yet connected,
+then when it is with the `live` function.
 
 See also the [LiveViewTest module](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveViewTest.html)
 for more information about testing and liveView.
 
 Finally you can delete all the default generated code linked to the `PageController`.
-- rm test/liveview_chat_web/controllers/page_controller_test.exs
-- rm lib/liveview_chat_web/controllers/page_controller.ex
-- rm test/liveview_chat_web/views/page_view_test.exs
-- rm lib/liveview_chat_web/views/page_view.ex
-- rm -r lib/liveview_chat_web/templates/page
+- `rm test/liveview_chat_web/controllers/page_controller_test.exs`
+- `rm lib/liveview_chat_web/controllers/page_controller.ex`
+- `rm test/liveview_chat_web/views/page_view_test.exs`
+- `rm lib/liveview_chat_web/views/page_view.ex`
+- `rm -r lib/liveview_chat_web/templates/page`
 
 You can now run the test with `mix test` command:
 
@@ -139,10 +139,10 @@ mix phx.gen.schema Message messages name:string message:string
 
 and don't forget to run `mix ecto.migrate` to create the new `messages` table.
 
-We can now udpate the `Message` schema to add functions for creating
-new messages and listing the existing messages. We'll update also the changeset
+We can now update the `Message` schema to add functions for creating
+new messages and listing the existing messages. We'll also update the changeset
 to add requirements and validations on the message text.
-Open the `lib/liveview_chat/message.ex` file and upadate the code with the following:
+Open the `lib/liveview_chat/message.ex` file and update the code with the following:
 
 ```elixir
 defmodule LiveviewChat.Message do
@@ -256,7 +256,7 @@ the title in the root layout and make sure the page is still displayed correctly
 
 ## Handle events
 
-At the moment if we submit the form nothing happen.
+At the moment if we submit the form nothing will happen.
 If we look at the server log, we see the following:
 
 ```sh
@@ -288,8 +288,8 @@ end
 
 The `create_message` function is called with the values from the form.
 If an error occurs while trying to save the information in the database,
-for example the changeset can returns an error if the name or the message is
-empty or if the message is too short, the changeset is assign again to the socket.
+for example the changeset can return an error if the name or the message is
+empty or if the message is too short, the changeset is assigned again to the socket.
 This will allow the form to display the error information:
 
 ![image](https://user-images.githubusercontent.com/6057298/142921586-2ed0e7b4-c2a1-4cd2-ab87-154ff4e9f4d8.png)
@@ -338,21 +338,21 @@ We are testing that errors are properly displayed.
 
 ## PubSub
 
-Instead of having to reload the page to see the new created messages,
+Instead of having to reload the page to see the newly created messages,
 we can use [PubSub](https://hexdocs.pm/phoenix_pubsub/Phoenix.PubSub.html) 
 to inform all connected clients that a new message has been created and to
 update the UI to display the new message.
 
 We're going to update the `lib/liveview_chat/message.ex` file to add two functions.
 
-- `subscribe` will be call when a client has properly displayed the liveView page
+- `subscribe` will be called when a client has properly displayed the liveView page
 and listen for new messages.
 
 - `notify` will be call each time a new message is created and to broadcast the
 new message to the other connected clients.
 
 
-Let's first add `alias Phoenix.PubSub` at the top of the `message.ex` file.
+Let's first add the line `alias Phoenix.PubSub` at the top of the `message.ex` file.
 Then we can create the `subscribe` function which is just a wrapper function
 for [Phoenix.PubSub.subscribe](https://hexdocs.pm/phoenix_pubsub/Phoenix.PubSub.html#subscribe/3):
 
@@ -378,7 +378,7 @@ For that we update the `mount` function with:
 We check the socket is connected then call the new subscribe function
 
 Now that we have a connected client we can create the `notify` function.
-First we udpate the `create_message` function to call `notify`:
+First we update the `create_message` function to call `notify`:
 
 ```elixir
   def create_message(attrs) do
@@ -389,7 +389,7 @@ First we udpate the `create_message` function to call `notify`:
   end
 ```
 
-`Repo.insert` can either returns `{:ok, message}` or `{:errror, reason}`,
+`Repo.insert` can either returns `{:ok, message}` or `{:error, reason}`,
 so we need to define `notify` to be able to manage these two cases:
 
 ```elixir
@@ -429,7 +429,7 @@ end
 ```
 
 When the event is received, the new message is added to the list of messages.
-The new list is then assign to the socket which will update the UI and display
+The new list is then assigned to the socket which will update the UI and display
 the new message.
 
 Add the following tests to make sure that messages are correctly displayed on the page:
@@ -457,5 +457,5 @@ Add the following tests to make sure that messages are correctly displayed on th
   end
 ```
 
-You should now have a functional chat application use liveView!
+You should now have a functional chat application using liveView!
 **Try it at: [liveview-chat-example.herokuapp](https://liveview-chat-example.herokuapp.com/)**
