@@ -2,9 +2,14 @@
 
 ![Libraries.io dependency status for GitHub repo](https://img.shields.io/librariesio/github/dwyl/phoenix-liveview-chat-example)
 
-## Create Phoenix LiveView App
-
-### Initialisation
+## Content
+- [Initialisation](#initialisation)
+- [LiveView Route, Controller and Template](#liveview-route-controller-and-template)
+- [Migration and Schema](#migration-and-schema)
+- [Handle events](#handle-events)
+- [PubSub](#pubsub)
+ 
+## Initialisation
 
 Let's start by creating the new `liveview_chat` Phoenix application.
 
@@ -21,7 +26,7 @@ You should now be able to start the application with `mix phx.server`:
 
 ![phx.server](https://user-images.githubusercontent.com/6057298/142623156-ab767540-2561-43e3-bc87-1c4f89778d21.png)
 
-### LiveView Route, Controller and Template
+## LiveView Route, Controller and Template
 
 Open `lib/liveview_chat_web/router.ex` file to remove the current default `PageController`
 controller and add instead a `MessageLive` controller:
@@ -126,7 +131,7 @@ You can now run the test with `mix test` command:
 ![image](https://user-images.githubusercontent.com/6057298/142856124-5c2d9cc6-9208-4567-b781-0b46081cfed1.png)
 
 
-### Migration and Schema
+## Migration and Schema
 
 Now that we have the liveView structure defined,
 we can start to focus on creating messages.
@@ -458,4 +463,5 @@ Add the following tests to make sure that messages are correctly displayed on th
 ```
 
 You should now have a functional chat application using liveView!
+
 **Try it at: [liveview-chat-example.herokuapp](https://liveview-chat-example.herokuapp.com/)**
