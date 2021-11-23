@@ -298,5 +298,44 @@ If you reload the page you should be able to see the messages created:
 
 ![image](https://user-images.githubusercontent.com/6057298/142921871-2feb20c2-906e-4640-8781-f8ea776dc05b.png)
 
+Now the form is displayed we can add the following tests:
+
+
+```elixir
+  test "name can't be blank", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/")
+
+    assert view
+           |> form("#form", message: %{name: "", message: "hello"})
+           |> render_submit() =~ html_escape("can't be blank")
+  end
+
+  test "message", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/")
+
+    assert view
+           |> form("#form", message: %{name: "Simon", message: ""})
+           |> render_submit() =~ html_escape("can't be blank")
+  end
+
+  test "minimum message length", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/")
+
+    assert view
+           |> form("#form", message: %{name: "Simon", message: "h"})
+           |> render_submit() =~ "should be at least 2 character(s)"
+  end
+```
+
+We are using the [form](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveViewTest.html#form/3) function to select the form and trigger
+the submit event with different values for the name and the message.
+We are testing that errors are properly displayed.
+
 
 ## PubSub
+
+Instead of having to reload the page to see the new created messages,
+we can use [PubSub](https://hexdocs.pm/phoenix_pubsub/Phoenix.PubSub.html) 
+to notice all connected clients that a new message has been created.
+
+
