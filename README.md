@@ -340,6 +340,94 @@ We are testing that errors are properly displayed.
 
 Instead of having to reload the page to see the new created messages,
 we can use [PubSub](https://hexdocs.pm/phoenix_pubsub/Phoenix.PubSub.html) 
-to notice all connected clients that a new message has been created.
+to inform all connected clients that a new message has been created and to
+update the UI to display the new message.
+
+We're going to update the `lib/liveview_chat/message.ex` file to add two functions.
+
+- `subscribe` will be call when a client has properly displayed the liveView page
+and listen for new messages.
+
+- `notify` will be call each time a new message is created and to broadcast the
+new message to the other connected clients.
 
 
+Let's first add `alias Phoenix.PubSub` at the top of the `message.ex` file.
+Then we can create the `subscribe` function which is just a wrapper function
+for [Phoenix.PubSub.subscribe](https://hexdocs.pm/phoenix_pubsub/Phoenix.PubSub.html#subscribe/3):
+
+```elixir
+def subscribe() do
+  PubSub.subscribe(LiveviewChat.PubSub, "liveview_chat")
+end
+```
+
+We can now connect the client when the LiveView page is rendered.
+For that we update the `mount` function with:
+
+```elixir
+  def mount(_params, _session, socket) do
+    if connected?(socket), do: Message.subscribe()
+
+    messages = Message.list_messages() |> Enum.reverse()
+    changeset = Message.changeset(%Message{}, %{})
+    {:ok, assign(socket, messages: messages, changeset: changeset)}
+  end
+```
+
+We check the socket is connected then call the new subscribe function
+
+Now that we have a connected client we can create the `notify` function.
+First we udpate the `create_message` function to call `notify`:
+
+```elixir
+  def create_message(attrs) do
+    %Message{}
+    |> changeset(attrs)
+    |> Repo.insert()
+    |> notify(:message_created)
+  end
+```
+
+`Repo.insert` can either returns `{:ok, message}` or `{:errror, reason}`,
+so we need to define `notify` to be able to manage these two cases:
+
+```elixir
+  def notify({:ok, message}, event) do
+    PubSub.broadcast(LiveviewChat.PubSub, "liveview_chat", {event, message})
+  end
+
+  def notify({:error, reason}, _event), do: {:error, reason}
+```
+
+We need to update `handle_event` function as the return value of `create_message`
+is now different:
+
+```elixir
+def handle_event("new_message", %{"message" => params}, socket) do
+    case Message.create_message(params) do
+      {:error, changeset} ->
+        {:noreply, assign(socket, changeset: changeset)}
+
+      :ok -> # broadcast returns :ok if there are no errors
+        changeset = Message.changeset(%Message{}, %{"name" => params["name"]})
+        {:noreply, assign(socket, changeset: changeset)}
+    end
+end
+```
+
+Again the `notify` function is just a wrapper around the `PubSub.broadcast` function.
+
+The last step is to handle the `:message_created` event by defining the `handle_info` function
+in `lib/liveview_chat_web/live/message_live.ex`:
+
+```elixir
+def handle_info({:message_created, message}, socket) do
+  messages = socket.assigns.messages ++ [message]
+  {:noreply, assign(socket, messages: messages)}
+end
+```
+
+When the event is received, the new message is added to the list of messages.
+The new list is then assign to the socket which will update the UI and display
+the new message.
