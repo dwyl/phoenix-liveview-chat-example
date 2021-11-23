@@ -1,6 +1,11 @@
 # LiveviewChat
 
-![Libraries.io dependency status for GitHub repo](https://img.shields.io/librariesio/github/dwyl/phoenix-liveview-chat-example)
+[![Elixir CI](https://github.com/dwyl/phoenix-liveview-chat-example/actions/workflows/cy.yml/badge.svg)](https://github.com/dwyl/phoenix-liveview-chat-example/actions/workflows/cy.yml)
+
+
+<div align="center">
+**Try it at: [liveview-chat-example.herokuapp](https://liveview-chat-example.herokuapp.com/)**
+</div>
 
 ## Content
 - [Initialisation](#initialisation)
@@ -464,4 +469,3 @@ Add the following tests to make sure that messages are correctly displayed on th
 
 You should now have a functional chat application using liveView!
 
-**Try it at: [liveview-chat-example.herokuapp](https://liveview-chat-example.herokuapp.com/)**
