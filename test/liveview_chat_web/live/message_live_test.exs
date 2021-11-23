@@ -2,6 +2,7 @@ defmodule LiveviewChatWeb.MessageLiveTest do
   use LiveviewChatWeb.ConnCase
   import Phoenix.LiveViewTest
   import Plug.HTML, only: [html_escape: 1]
+  alias LiveviewChat.Message
 
   test "disconnected and connected mount", %{conn: conn} do
     conn = get(conn, "/")
@@ -32,5 +33,15 @@ defmodule LiveviewChatWeb.MessageLiveTest do
     assert view
            |> form("#form", message: %{name: "Simon", message: "h"})
            |> render_submit() =~ "should be at least 2 character(s)"
+  end
+
+  test "handle_info/2", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/")
+    assert render(view)
+    # send :created_message event when the message is created
+    Message.create_message(%{"name" => "Simon", "message" => "hello"})
+    # test that the name and the message is displayed
+    assert render(view) =~ "<b>Simon:</b>"
+    assert render(view) =~ "hello"
   end
 end
