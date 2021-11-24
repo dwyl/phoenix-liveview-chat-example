@@ -476,7 +476,7 @@ You should now have a functional chat application using liveView!
 
 ## Temporary assigns
 
-At the moment the `mount` function first initialise the list of messages
+At the moment the `mount` function first initialises the list of messages
 by loading the latest 20 messages from the database:
 
 ```elixir
@@ -520,7 +520,7 @@ end
 
 The list of messages is retrieved once, then it is reset to an empty list.
 
-Now the `handle_info` only need to assign the new message to the socket:
+Now the `handle_info` only needs to assign the new message to the socket:
 
 
 ```elixir
