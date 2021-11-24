@@ -15,6 +15,7 @@
 - [Migration and Schema](#migration-and-schema)
 - [Handle events](#handle-events)
 - [PubSub](#pubsub)
+- [What's next](#what-s-next)
  
 ## Initialisation
 
@@ -471,3 +472,15 @@ Add the following tests to make sure that messages are correctly displayed on th
 
 You should now have a functional chat application using liveView!
 
+## What's next?
+
+If you found this example useful, please ⭐️ the GitHub repository
+so we (_and others_) know you liked it!
+
+Here are other repositories you might want to read:
+
+- [github.com/dwyl/**phoenix-chat-example**](https://github.com/dwyl/phoenix-chat-example) A chat application using Phoenix Socket
+- [github.com/dwyl/**phoenix-liveview-counter-tutorial**](https://github.com/dwyl/phoenix-liveview-counter-tutorial)
+- [github.com/dwyl/**phoenix-liveview-todo-list-tutorial**](https://github.com/dwyl/phoenix-liveview-todo-list-tutorial)
+
+Thank you!
