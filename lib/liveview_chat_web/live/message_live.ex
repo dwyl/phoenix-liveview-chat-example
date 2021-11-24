@@ -7,7 +7,9 @@ defmodule LiveviewChatWeb.MessageLive do
 
     messages = Message.list_messages() |> Enum.reverse()
     changeset = Message.changeset(%Message{}, %{})
-    {:ok, assign(socket, messages: messages, changeset: changeset)}
+
+    {:ok, assign(socket, messages: messages, changeset: changeset),
+     temporary_assigns: [messages: []]}
   end
 
   def render(assigns) do
@@ -26,7 +28,6 @@ defmodule LiveviewChatWeb.MessageLive do
   end
 
   def handle_info({:message_created, message}, socket) do
-    messages = socket.assigns.messages ++ [message]
-    {:noreply, assign(socket, messages: messages)}
+    {:noreply, assign(socket, messages: [message])}
   end
 end
