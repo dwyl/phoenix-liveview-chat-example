@@ -16,7 +16,7 @@
 - [Migration and Schema](#migration-and-schema)
 - [Handle events](#handle-events)
 - [PubSub](#pubsub)
-- [What's next](#what-s-next)
+- [What's next](#whats-next)
  
 ## Initialisation
 
