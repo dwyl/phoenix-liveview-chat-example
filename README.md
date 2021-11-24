@@ -16,6 +16,7 @@
 - [Migration and Schema](#migration-and-schema)
 - [Handle events](#handle-events)
 - [PubSub](#pubsub)
+- [Temporary assigns](#temporary-assigns)
 - [What's next](#whats-next)
  
 ## Initialisation
@@ -476,7 +477,7 @@ You should now have a functional chat application using liveView!
 ## Temporary assigns
 
 At the moment the `mount` function first initialise the list of messages
-by loading the latest 20 messsages from the database:
+by loading the latest 20 messages from the database:
 
 ```elixir
 def mount(_params, _session, socket) do
@@ -499,7 +500,7 @@ def handle_info({:message_created, message}, socket) do
 end
 ```
 
-This can cause issues if the list of messages become long as
+This can cause issues if the list of messages becomes too long as
 all the messages are kept in memory on the server.
 
 To minimise the use of the memory we can define messages as a temporary assign:
@@ -528,8 +529,8 @@ Now the `handle_info` only need to assign the new message to the socket:
   end
 ```
 
-Finally the heex messages template listen for any changes in the list of messages
-with `phx-update` and append the new message to the existing displayed list.
+Finally the heex messages template listens for any changes in the list of messages
+with `phx-update` and appends the new message to the existing displayed list.
 
 ```heex
 <ul id='msg-list' phx-update="append">
