@@ -16,6 +16,7 @@
 - [Migration and Schema](#migration-and-schema)
 - [Handle events](#handle-events)
 - [PubSub](#pubsub)
+- [Temporary assigns](#temporary-assigns)
 - [What's next](#whats-next)
  
 ## Initialisation
@@ -472,6 +473,78 @@ Add the following tests to make sure that messages are correctly displayed on th
 ```
 
 You should now have a functional chat application using liveView!
+
+## Temporary assigns
+
+At the moment the `mount` function first initialises the list of messages
+by loading the latest 20 messages from the database:
+
+```elixir
+def mount(_params, _session, socket) do
+  if connected?(socket), do: Message.subscribe()
+
+  messages = Message.list_messages() |> Enum.reverse() # get the list of messages
+  changeset = Message.changeset(%Message{}, %{})
+
+  {:ok, assign(socket, messages: messages, changeset: changeset)} ## assigns messages to socket
+end
+```
+
+Then each time a new message is created the `handle_info` function append
+the message to the list of messages:
+
+```elixir
+def handle_info({:message_created, message}, socket) do
+  messages = socket.assigns.messages ++ [message] # append new message to the existing list
+  {:noreply, assign(socket, messages: messages)}
+end
+```
+
+This can cause issues if the list of messages becomes too long as
+all the messages are kept in memory on the server.
+
+To minimise the use of the memory we can define messages as a temporary assign:
+
+```elixir
+def mount(_params, _session, socket) do
+  if connected?(socket), do: Message.subscribe()
+
+  messages = Message.list_messages() |> Enum.reverse()
+  changeset = Message.changeset(%Message{}, %{})
+
+  {:ok, assign(socket, messages: messages, changeset: changeset),
+  temporary_assigns: [messages: []]}
+end
+
+```
+
+The list of messages is retrieved once, then it is reset to an empty list.
+
+Now the `handle_info` only needs to assign the new message to the socket:
+
+
+```elixir
+  def handle_info({:message_created, message}, socket) do
+    {:noreply, assign(socket, messages: [message])}
+  end
+```
+
+Finally the heex messages template listens for any changes in the list of messages
+with `phx-update` and appends the new message to the existing displayed list.
+
+```heex
+<ul id='msg-list' phx-update="append">
+   <%= for message <- @messages do %>
+     <li id={message.id}>
+       <b><%= message.name %>:</b>
+       <%= message.message %>
+     </li>
+   <% end %>
+</ul>
+```
+
+See also the Phoenix documentation page: 
+https://hexdocs.pm/phoenix_live_view/dom-patching.html#temporary-assigns
 
 ## What's next?
 
