@@ -3,6 +3,7 @@
 # LiveviewChat
 
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/dwyl/phoenix-liveview-chat-example/Elixir%20CI?label=build&style=flat-square)](https://github.com/dwyl/phoenix-liveview-chat-example/actions/workflows/cy.yml)
+[![codecov test coverage](https://img.shields.io/codecov/c/github/dwyl/phoenix-liveview-chat-example/main.svg?style=flat-square)](http://codecov.io/github/dwyl/auth_plug?branch=main)
 [![HitCount](http://hits.dwyl.com/dwyl/phoenix-liveview-chat-example.svg?style=flat-square)](http://hits.dwyl.com/dwyl/phoenix-liveview-chat-example)
   
 **Try it**: [**liveview-chat-example.herokuapp**](https://liveview-chat-example.herokuapp.com)
@@ -15,7 +16,7 @@
 - [Migration and Schema](#migration-and-schema)
 - [Handle events](#handle-events)
 - [PubSub](#pubsub)
-- [What's next](#what-s-next)
+- [What's next](#whats-next)
  
 ## Initialisation
 
@@ -477,10 +478,14 @@ You should now have a functional chat application using liveView!
 If you found this example useful, please ⭐️ the GitHub repository
 so we (_and others_) know you liked it!
 
+
 Here are other repositories you might want to read:
 
 - [github.com/dwyl/**phoenix-chat-example**](https://github.com/dwyl/phoenix-chat-example) A chat application using Phoenix Socket
 - [github.com/dwyl/**phoenix-liveview-counter-tutorial**](https://github.com/dwyl/phoenix-liveview-counter-tutorial)
 - [github.com/dwyl/**phoenix-liveview-todo-list-tutorial**](https://github.com/dwyl/phoenix-liveview-todo-list-tutorial)
+
+
+Any questions or suggestions? Do not hesitate to [open new issues](https://github.com/dwyl/phoenix-liveview-chat-example/issues)!
 
 Thank you!
