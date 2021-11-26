@@ -18,6 +18,7 @@ defmodule LiveviewChatWeb.Router do
     pipe_through :browser
 
     live "/", MessageLive
+    get "/ping", PingController, :ping
   end
 
   # Other scopes may use custom stacks.
