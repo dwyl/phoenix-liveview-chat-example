@@ -17,6 +17,7 @@
 - [Handle events](#handle-events)
 - [PubSub](#pubsub)
 - [Temporary assigns](#temporary-assigns)
+- [Hooks](#hooks)
 - [What's next](#whats-next)
  
 ## Initialisation
@@ -234,7 +235,7 @@ If we now update the `message.htlm.heex` file to:
    <% end %>
 </ul>
 
-<.form let={f} for={@changeset}, id="form", phx-submit="new_message">
+<.form let={f} for={@changeset} id="form" phx-submit="new_message">
    <%= text_input f, :name, id: "name", placeholder: "Your name", autofocus: "true"  %>
    <%= error_tag f, :name %>
 
@@ -282,7 +283,7 @@ If we look at the server log, we see the following:
 On submit the form is creating a new event defined with `phx-submit`:
 
 ```elixir
-<.form let={f} for={@changeset}, id="form", phx-submit="new_message">
+<.form let={f} for={@changeset} id="form" phx-submit="new_message">
 ```
 
 However this event is not managed on the server yet, we can fix this by adding the
@@ -474,6 +475,75 @@ Add the following tests to make sure that messages are correctly displayed on th
 
 You should now have a functional chat application using liveView!
 
+## Hooks
+
+One issue we can notice is that the message input doesn't always
+reset to an empty value after sending a message using the `Enter` key
+on the input field. This force us to remove the 
+previous message manually before writting and sending a new one.
+
+The reason for that is:
+
+> The JavaScript client is always the source of truth for current input values. 
+For any given **input with focus**, LiveView will never overwrite 
+the input's current value, even if it deviates from the server's rendered updates.
+
+see: https://hexdocs.pm/phoenix_live_view/form-bindings.html#javascript-client-specifics
+
+
+Our solution is to use `phx-hook` to run some javascript on the client
+after one of the liveView life-cycle callback (mounted, beforeUpdated, updated,
+destroyed, disconnected, reconnected).
+
+Let's add a hook to monitor when the message form is `udpated`.
+In the `message.html.heex` file add the `phx-hook` attribute:
+
+
+```html
+<.form let={f} for={@changeset} id="form" phx-submit="new_message" phx-hook="Form">
+```
+
+In the `assets/js/app.js` file we can now create the javascript logic:
+
+
+```js
+// get message input element
+msg = document.getElementById('msg');                                           
+
+// define "Form" hook, the name must match the one
+// defined with phx-hoo="Form"
+let Hooks = {}
+Hooks.Form = {
+  // Each time the form is updated run the code in the callback
+  updated() {
+    // If no error displayed reset the message value
+    if(document.getElementsByClassName('invalid-feedback').length == 0) {
+      msg.value = '';
+    }
+  }
+}
+
+let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
+let liveSocket = new LiveSocket("/live", Socket, {params: {_csrf_token: csrfToken}, hooks: Hooks}) // Add hooks: Hooks
+```
+
+The main logic to reset the message value is contained inside the `updated()`
+callback function:
+
+```js
+    if(document.getElementsByClassName('invalid-feedback').length == 0) {
+      msg.value = '';
+    }
+```
+
+Before setting the value to an empty string, we check first that
+no errors are displayed on the form by making sure no `invalid-feedback` tag
+element are displayed. (read more about feedback: https://hexdocs.pm/phoenix_live_view/form-bindings.html#phx-feedback-for)
+
+The final step is to make sure to set the hooks on the `liveSocket` with `hooks: Hooks`
+The message input should now be reset when a new message is added!
+ 
+
 ## Temporary assigns
 
 At the moment the `mount` function first initialises the list of messages
@@ -545,6 +615,7 @@ with `phx-update` and appends the new message to the existing displayed list.
 
 See also the Phoenix documentation page: 
 https://hexdocs.pm/phoenix_live_view/dom-patching.html#temporary-assigns
+
 
 ## What's next?
 
