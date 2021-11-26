@@ -7,7 +7,7 @@
 [![HitCount](http://hits.dwyl.com/dwyl/phoenix-liveview-chat-example.svg?style=flat-square)](http://hits.dwyl.com/dwyl/phoenix-liveview-chat-example)
   
 **Try it**: [**liveview-chat-example.herokuapp**](https://liveview-chat-example.herokuapp.com)
-  
+![wake-sleeping-heroku-app](https://liveview-chat-example.herokuapp.com/ping)
 </div>
 
 ## Content
