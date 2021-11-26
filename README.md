@@ -16,8 +16,8 @@
 - [Migration and Schema](#migration-and-schema)
 - [Handle events](#handle-events)
 - [PubSub](#pubsub)
-- [Temporary assigns](#temporary-assigns)
 - [Hooks](#hooks)
+- [Temporary assigns](#temporary-assigns)
 - [What's next](#whats-next)
  
 ## Initialisation
@@ -479,8 +479,8 @@ You should now have a functional chat application using liveView!
 
 One issue we can notice is that the message input doesn't always
 reset to an empty value after sending a message using the `Enter` key
-on the input field. This force us to remove the 
-previous message manually before writting and sending a new one.
+on the input field. This forces us to remove the 
+previous message manually before writing and sending a new one.
 
 The reason for that is:
 
@@ -492,10 +492,10 @@ see: https://hexdocs.pm/phoenix_live_view/form-bindings.html#javascript-client-s
 
 
 Our solution is to use `phx-hook` to run some javascript on the client
-after one of the liveView life-cycle callback (mounted, beforeUpdated, updated,
+after one of the liveView life-cycle callbacks (mounted, beforeUpdated, updated,
 destroyed, disconnected, reconnected).
 
-Let's add a hook to monitor when the message form is `udpated`.
+Let's add a hook to monitor when the message form is `updated`.
 In the `message.html.heex` file add the `phx-hook` attribute:
 
 
@@ -538,7 +538,7 @@ callback function:
 
 Before setting the value to an empty string, we check first that
 no errors are displayed on the form by making sure no `invalid-feedback` tag
-element are displayed. (read more about feedback: https://hexdocs.pm/phoenix_live_view/form-bindings.html#phx-feedback-for)
+elements are displayed. (read more about feedback: https://hexdocs.pm/phoenix_live_view/form-bindings.html#phx-feedback-for)
 
 The final step is to make sure to set the hooks on the `liveSocket` with `hooks: Hooks`
 The message input should now be reset when a new message is added!
