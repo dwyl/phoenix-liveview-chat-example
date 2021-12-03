@@ -18,6 +18,7 @@
 - [PubSub](#pubsub)
 - [Hooks](#hooks)
 - [Temporary assigns](#temporary-assigns)
+- [Autentication](#authentication)
 - [What's next](#whats-next)
  
 ## Initialisation
@@ -615,6 +616,44 @@ with `phx-update` and appends the new message to the existing displayed list.
 
 See also the Phoenix documentation page: 
 https://hexdocs.pm/phoenix_live_view/dom-patching.html#temporary-assigns
+
+## Authentication
+
+Currently the name is left to the person to add manually in the form.
+This work well for this example as people can test the chat feature easily.
+
+However we can add authentication to the application to have the name field
+defined automatically.
+
+We have created our own authentication application (see our [auth app](https://github.com/dwyl/auth)) 
+to make it easier for us to add login feature to any of our apps.
+
+You need to first to create a new api key at https://dwylauth.herokuapp.com/:
+
+![image](https://user-images.githubusercontent.com/6057298/144274288-ccdd5a79-65c5-44da-9148-0355886a2a7c.png)
+
+Then create a `.env` file and add your new created api key:
+
+```.env
+ export AUTH_API_KEY=88SwQDtedCxH129mxogVrUioibxjwSnXMx2Rf51XnZH1mAq2k5NZ/88SwQD8htcyBEbioCPGGH8okSJszWNE2nzn5BxfhxNtzHWrz94Bb/dwylauth.herokuapp.com 
+```
+
+Add the [auth_plug]() package to your dependencies.
+In `mix.exs` file update your `deps` function and add:
+
+```elixir
+{:auth_plug, "~> 1.4.7"}
+```
+
+Don't forget to:
+- load your key: `source .env`
+- get the dependencies: `mix deps.get`
+
+If you encounter an error similar to:
+
+It means that the `auth_plug` dependencies hasn't been able to
+retrieve the api key from the `.env` file during compilation.
+Make sure to source your key and try to recompile your dependencies.
 
 
 ## What's next?

@@ -55,7 +55,8 @@ defmodule LiveviewChat.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
       {:excoveralls, "~> 0.14.4", only: [:test, :dev]},
-      {:ping, "~> 1.1.0"}
+      {:ping, "~> 1.1.0"},
+      {:auth_plug, "~> 1.4.8"}
     ]
   end
 
