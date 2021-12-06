@@ -1,12 +1,15 @@
 defmodule LiveviewChatWeb.MessageLive do
   use LiveviewChatWeb, :live_view
   alias LiveviewChat.Message
+  on_mount LiveviewChatWeb.AuthLiveView
 
   def mount(_params, _session, socket) do
     if connected?(socket), do: Message.subscribe()
 
-    messages = Message.list_messages() |> Enum.reverse()
+    # create on_mount which assign name and loggedin true
+    IO.inspect(socket.assigns)
     changeset = Message.changeset(%Message{}, %{})
+    messages = Message.list_messages() |> Enum.reverse()
 
     {:ok, assign(socket, messages: messages, changeset: changeset),
      temporary_assigns: [messages: []]}
