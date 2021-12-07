@@ -12,6 +12,18 @@
   <body>
     <header>
       <section class="container">
+        <nav>
+          <ul>
+            <%= if @loggedin do %>
+              <li>
+                <img width="40px" src={@person.picture}/>
+              </li>
+              <li><%= link "logout", to: "/logout" %></li>
+            <% else %>
+              <li><%= link "Login", to: "/login" %></li>
+            <% end %>
+          </ul>
+        </nav>
         <h1>LiveView Chat Example</h1>
       </section>
     </header>

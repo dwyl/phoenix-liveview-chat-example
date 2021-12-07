@@ -14,18 +14,18 @@ defmodule LiveviewChatWeb.Router do
     plug :accepts, ["json"]
   end
 
-  pipeline :auth, do: plug(AuthPlugOptional)
+  pipeline :authOptional, do: plug(AuthPlugOptional)
 
   scope "/", LiveviewChatWeb do
-    pipe_through [:browser, :auth]
+    pipe_through [:browser, :authOptional]
 
-    get "/logout", LoginController, :logout
+    get "/logout", AuthController, :logout
     live "/", MessageLive
   end
 
   scope "/", LiveviewChatWeb do
     pipe_through :browser
-    get "/login", LoginController, :login
+    get "/login", AuthController, :login
     get "/ping", PingController, :ping
   end
 

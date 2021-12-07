@@ -1,9 +1,3 @@
-<%= if @loggedin do %>
-  <%= link "logout", to: "/logout" %>
-<% else %>
-  <%= link "Login", to: "/login" %>
-<% end %>
-
 <ul id='msg-list' phx-update="append">
    <%= for message <- @messages do %>
      <li id={message.id}>
