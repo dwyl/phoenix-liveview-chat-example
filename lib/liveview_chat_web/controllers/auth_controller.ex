@@ -6,11 +6,11 @@ defmodule LiveviewChatWeb.AuthController do
     socket =
       case AuthPlug.Token.verify_jwt(jwt) do
         {:ok, claims} ->
-          assign_new(socket, :person, fn ->
+          socket
+          |> assign_new(:person, fn ->
             AuthPlug.Helpers.strip_struct_metadata(claims)
           end)
-
-          assign_new(socket, :loggedin, fn -> true end)
+          |> assign_new(:loggedin, fn -> true end)
 
         _ ->
           assign_new(socket, :loggedin, fn -> false end)
