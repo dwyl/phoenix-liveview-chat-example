@@ -8,8 +8,8 @@
 </ul>
 
 <.form let={f} for={@changeset} id="form" phx-submit="new_message" phx-hook="Form">
-   <%= text_input f, :name, id: "name", placeholder: "Your name", autofocus: "true"  %>
-   <%= error_tag f, :name %>
+    <%= text_input f, :name, id: "name", placeholder: "Your name", autofocus: "true"  %>
+    <%= error_tag f, :name %>
 
    <%= text_input f, :message, id: "msg", placeholder: "Your message"  %>
    <%= error_tag f, :message %>

@@ -9,6 +9,7 @@ on:
 jobs:
   build:
     name: Build and test
+    environment: liveview-chat-example
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -41,6 +42,6 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         MIX_ENV: test
-        # AUTH_API_KEY: 2PzB7PPnpuLsbWmWtXpGyI+kfSQSQ1zUW2Atz/+8PdZuSEJzHgzGnJWV35nTKRwx
+        AUTH_API_KEY: ${{ secrets.AUTH_API_KEY }}
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1

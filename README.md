@@ -5,7 +5,7 @@
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/dwyl/phoenix-liveview-chat-example/Elixir%20CI?label=build&style=flat-square)](https://github.com/dwyl/phoenix-liveview-chat-example/actions/workflows/cy.yml)
 [![codecov test coverage](https://img.shields.io/codecov/c/github/dwyl/phoenix-liveview-chat-example/main.svg?style=flat-square)](https://codecov.io/github/dwyl/phoenix-liveview-chat-example?branch=main)
 [![HitCount](http://hits.dwyl.com/dwyl/phoenix-liveview-chat-example.svg?style=flat-square)](http://hits.dwyl.com/dwyl/phoenix-liveview-chat-example)
-  
+
 **Try it**: [**liveview-chat-example.herokuapp**](https://liveview-chat-example.herokuapp.com)
 ![wake-sleeping-heroku-app](https://liveview-chat-example.herokuapp.com/ping)
 </div>
@@ -18,8 +18,9 @@
 - [PubSub](#pubsub)
 - [Hooks](#hooks)
 - [Temporary assigns](#temporary-assigns)
+- [Autentication](#authentication)
 - [What's next](#whats-next)
- 
+
 ## Initialisation
 
 Let's start by creating the new `liveview_chat` Phoenix application.
@@ -83,14 +84,14 @@ end
 
 Then the template at `lib/liveview_chat_web/templates/message/message.html.heex`:
 
-```heex
+```html
 <h1>LiveView Message Page</h1>
 ```
 
 Finally to make the root layout simpler. Update the `body` content
-of the `lib/liveview_chat_web/templates/layout/root.html.heex` to: 
+of the `lib/liveview_chat_web/templates/layout/root.html.heex` to:
 
-```
+```html
 <body>
     <header>
       <section class="container">
@@ -121,13 +122,13 @@ defmodule LiveviewChatWeb.MessageLiveTest do
     {:ok, _view, _html} = live(conn)
   end
 end
-
 ```
 
 We are testing that the `/` endpoint is accessible when the socket is not yet connected,
 then when it is with the `live` function.
 
-See also the [LiveViewTest module](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveViewTest.html)
+See also the
+[LiveViewTest module](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveViewTest.html)
 for more information about testing and liveView.
 
 Finally you can delete all the default generated code linked to the `PageController`.
@@ -139,12 +140,12 @@ Finally you can delete all the default generated code linked to the `PageControl
 
 You can now run the test with `mix test` command:
 
-![image](https://user-images.githubusercontent.com/6057298/142856124-5c2d9cc6-9208-4567-b781-0b46081cfed1.png)
+![tests-pass](https://user-images.githubusercontent.com/6057298/142856124-5c2d9cc6-9208-4567-b781-0b46081cfed1.png)
 
 
 ## Migration and Schema
 
-Now that we have the liveView structure defined,
+Now that we have the `LiveView` structure defined,
 we can start to focus on creating messages.
 The database will save the message and the name of the user.
 So we can create a new schema and migration:
@@ -254,11 +255,11 @@ We should see the following page:
 ![image](https://user-images.githubusercontent.com/6057298/142882923-db490aea-5af6-49d4-9e45-38c75d05e234.png)
 
 
-the `<.form></.form>` syntax is how to use the form [function component](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html#content).
-> A function component is any function that receives an assigns map as argument and returns a rendered struct built with the ~H sigil.
-
-
-
+the `<.form></.form>` syntax is how to use the form
+[function component](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html#content).
+> A function component is any function
+that receives an assigns map as argument
+and returns a rendered struct built with the `~H` sigil.
 
 
 Finally let's make sure the test are still passing by updating the `assert` to:
@@ -275,9 +276,12 @@ the title in the root layout and make sure the page is still displayed correctly
 At the moment if we submit the form nothing will happen.
 If we look at the server log, we see the following:
 
-```sh
-** (UndefinedFunctionError) function LiveviewChatWeb.MessageLive.handle_event/3 is undefined or private
-    (liveview_chat 0.1.0) LiveviewChatWeb.MessageLive.handle_event("new_message", %{"_csrf_token" => "fyVPIls_XRBuGwlkMhxsFAciRRkpAVUOLW5k4UoR7JF1uZ5z2Dundigv", "message" => %{"message" => "", "name" => ""}}, #Phoenix.LiveView.Socket
+```
+** (UndefinedFunctionError) function LiveviewChatWeb.MessageLive.handle_event/3
+  is undefined or private
+  (liveview_chat 0.1.0) LiveviewChatWeb.MessageLive.handle_event("new_message",
+  %{"_csrf_token" => "fyVPIls_XRBuGwlkMhxsFAciRRkpAVUOLW5k4UoR7JF1uZ5z2Dundigv",
+  "message" => %{"message" => "", "name" => ""}}, #Phoenix.LiveView.Socket
 ```
 
 On submit the form is creating a new event defined with `phx-submit`:
@@ -286,8 +290,10 @@ On submit the form is creating a new event defined with `phx-submit`:
 <.form let={f} for={@changeset} id="form" phx-submit="new_message">
 ```
 
-However this event is not managed on the server yet, we can fix this by adding the
-`handle_event` function in `lib/liveview_chat_web/live/message_live.ex`:
+However this event is not managed on the server yet,
+we can fix this by adding the
+`handle_event` function in
+`lib/liveview_chat_web/live/message_live.ex`:
 
 ```elixir
 def handle_event("new_message", %{"message" => params}, socket) do
@@ -308,7 +314,7 @@ for example the changeset can return an error if the name or the message is
 empty or if the message is too short, the changeset is assigned again to the socket.
 This will allow the form to display the error information:
 
-![image](https://user-images.githubusercontent.com/6057298/142921586-2ed0e7b4-c2a1-4cd2-ab87-154ff4e9f4d8.png)
+![name-cant-be-blank](https://user-images.githubusercontent.com/6057298/142921586-2ed0e7b4-c2a1-4cd2-ab87-154ff4e9f4d8.png)
 
 If the message is saved without any errors,
 we are creating a new changeset which contains the name from the form
@@ -316,7 +322,7 @@ to avoid people to enter their name again in the form, and we assign the new
 changeset to the socket.
 
 
-![image](https://user-images.githubusercontent.com/6057298/142921871-2feb20c2-906e-4640-8781-f8ea776dc05b.png)
+![chat-basic-message](https://user-images.githubusercontent.com/6057298/142921871-2feb20c2-906e-4640-8781-f8ea776dc05b.png)
 
 Now the form is displayed we can add the following tests:
 
@@ -347,7 +353,9 @@ Now the form is displayed we can add the following tests:
   end
 ```
 
-We are using the [form](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveViewTest.html#form/3) function to select the form and trigger
+We are using the
+[`form/3`](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveViewTest.html#form/3)
+function to select the form and trigger
 the submit event with different values for the name and the message.
 We are testing that errors are properly displayed.
 
@@ -355,7 +363,7 @@ We are testing that errors are properly displayed.
 ## PubSub
 
 Instead of having to reload the page to see the newly created messages,
-we can use [PubSub](https://hexdocs.pm/phoenix_pubsub/Phoenix.PubSub.html) 
+we can use [PubSub](https://hexdocs.pm/phoenix_pubsub/Phoenix.PubSub.html)
 to inform all connected clients that a new message has been created and to
 update the UI to display the new message.
 
@@ -382,13 +390,13 @@ We can now connect the client when the LiveView page is rendered.
 For that we update the `mount` function with:
 
 ```elixir
-  def mount(_params, _session, socket) do
-    if connected?(socket), do: Message.subscribe()
+def mount(_params, _session, socket) do
+  if connected?(socket), do: Message.subscribe()
 
-    messages = Message.list_messages() |> Enum.reverse()
-    changeset = Message.changeset(%Message{}, %{})
-    {:ok, assign(socket, messages: messages, changeset: changeset)}
-  end
+  messages = Message.list_messages() |> Enum.reverse()
+  changeset = Message.changeset(%Message{}, %{})
+  {:ok, assign(socket, messages: messages, changeset: changeset)}
+end
 ```
 
 We check the socket is connected then call the new subscribe function
@@ -397,23 +405,23 @@ Now that we have a connected client we can create the `notify` function.
 First we update the `create_message` function to call `notify`:
 
 ```elixir
-  def create_message(attrs) do
-    %Message{}
-    |> changeset(attrs)
-    |> Repo.insert()
-    |> notify(:message_created)
-  end
+def create_message(attrs) do
+  %Message{}
+  |> changeset(attrs)
+  |> Repo.insert()
+  |> notify(:message_created)
+end
 ```
 
 `Repo.insert` can either returns `{:ok, message}` or `{:error, reason}`,
 so we need to define `notify` to be able to manage these two cases:
 
 ```elixir
-  def notify({:ok, message}, event) do
-    PubSub.broadcast(LiveviewChat.PubSub, "liveview_chat", {event, message})
-  end
+def notify({:ok, message}, event) do
+  PubSub.broadcast(LiveviewChat.PubSub, "liveview_chat", {event, message})
+end
 
-  def notify({:error, reason}, _event), do: {:error, reason}
+def notify({:error, reason}, _event), do: {:error, reason}
 ```
 
 We need to update `handle_event` function as the return value of `create_message`
@@ -421,14 +429,14 @@ is now different:
 
 ```elixir
 def handle_event("new_message", %{"message" => params}, socket) do
-    case Message.create_message(params) do
-      {:error, changeset} ->
-        {:noreply, assign(socket, changeset: changeset)}
+  case Message.create_message(params) do
+    {:error, changeset} ->
+      {:noreply, assign(socket, changeset: changeset)}
 
-      :ok -> # broadcast returns :ok if there are no errors
-        changeset = Message.changeset(%Message{}, %{"name" => params["name"]})
-        {:noreply, assign(socket, changeset: changeset)}
-    end
+    :ok -> # broadcast returns :ok if there are no errors
+      changeset = Message.changeset(%Message{}, %{"name" => params["name"]})
+      {:noreply, assign(socket, changeset: changeset)}
+  end
 end
 ```
 
@@ -451,26 +459,26 @@ the new message.
 Add the following tests to make sure that messages are correctly displayed on the page:
 
 ```elixir
-  test "message form submitted correctly", %{conn: conn} do
-    {:ok, view, _html} = live(conn, "/")
+test "message form submitted correctly", %{conn: conn} do
+  {:ok, view, _html} = live(conn, "/")
 
-    assert view
-           |> form("#form", message: %{name: "Simon", message: "hi"})
-           |> render_submit()
+  assert view
+         |> form("#form", message: %{name: "Simon", message: "hi"})
+         |> render_submit()
 
-    assert render(view) =~ "<b>Simon:</b>"
-    assert render(view) =~ "hi"
-  end
+  assert render(view) =~ "<b>Simon:</b>"
+  assert render(view) =~ "hi"
+end
 
-  test "handle_info/2", %{conn: conn} do
-    {:ok, view, _html} = live(conn, "/")
-    assert render(view)
-    # send :created_message event when the message is created
-    Message.create_message(%{"name" => "Simon", "message" => "hello"})
-    # test that the name and the message is displayed
-    assert render(view) =~ "<b>Simon:</b>"
-    assert render(view) =~ "hello"
-  end
+test "handle_info/2", %{conn: conn} do
+  {:ok, view, _html} = live(conn, "/")
+  assert render(view)
+  # send :created_message event when the message is created
+  Message.create_message(%{"name" => "Simon", "message" => "hello"})
+  # test that the name and the message is displayed
+  assert render(view) =~ "<b>Simon:</b>"
+  assert render(view) =~ "hello"
+end
 ```
 
 You should now have a functional chat application using liveView!
@@ -479,13 +487,13 @@ You should now have a functional chat application using liveView!
 
 One issue we can notice is that the message input doesn't always
 reset to an empty value after sending a message using the `Enter` key
-on the input field. This forces us to remove the 
+on the input field. This forces us to remove the
 previous message manually before writing and sending a new one.
 
 The reason for that is:
 
-> The JavaScript client is always the source of truth for current input values. 
-For any given **input with focus**, LiveView will never overwrite 
+> The JavaScript client is always the source of truth for current input values.
+For any given **input with focus**, LiveView will never overwrite
 the input's current value, even if it deviates from the server's rendered updates.
 
 see: https://hexdocs.pm/phoenix_live_view/form-bindings.html#javascript-client-specifics
@@ -531,18 +539,20 @@ The main logic to reset the message value is contained inside the `updated()`
 callback function:
 
 ```js
-    if(document.getElementsByClassName('invalid-feedback').length == 0) {
-      msg.value = '';
-    }
+if(document.getElementsByClassName('invalid-feedback').length == 0) {
+  msg.value = '';
+}
 ```
 
 Before setting the value to an empty string, we check first that
 no errors are displayed on the form by making sure no `invalid-feedback` tag
-elements are displayed. (read more about feedback: https://hexdocs.pm/phoenix_live_view/form-bindings.html#phx-feedback-for)
+elements are displayed.
+(read more about feedback:
+  https://hexdocs.pm/phoenix_live_view/form-bindings.html#phx-feedback-for )
 
 The final step is to make sure to set the hooks on the `liveSocket` with `hooks: Hooks`
 The message input should now be reset when a new message is added!
- 
+
 
 ## Temporary assigns
 
@@ -594,15 +604,15 @@ Now the `handle_info` only needs to assign the new message to the socket:
 
 
 ```elixir
-  def handle_info({:message_created, message}, socket) do
-    {:noreply, assign(socket, messages: [message])}
-  end
+def handle_info({:message_created, message}, socket) do
+  {:noreply, assign(socket, messages: [message])}
+end
 ```
 
-Finally the heex messages template listens for any changes in the list of messages
+Finally the `heex` messages template listens for any changes in the list of messages
 with `phx-update` and appends the new message to the existing displayed list.
 
-```heex
+```html
 <ul id='msg-list' phx-update="append">
    <%= for message <- @messages do %>
      <li id={message.id}>
@@ -613,9 +623,221 @@ with `phx-update` and appends the new message to the existing displayed list.
 </ul>
 ```
 
-See also the Phoenix documentation page: 
+See also the Phoenix documentation page:
 https://hexdocs.pm/phoenix_live_view/dom-patching.html#temporary-assigns
 
+## Authentication
+
+Currently the `name` field is left to the person to define manually.
+In this section we'll add authentication to the application using
+[`auth`](https://github.com/dwyl/auth) to pre-fill the name in the message form.
+
+You need to first to create a new **API Key**
+at https://dwylauth.herokuapp.com e.g:
+
+![create-api-key](https://user-images.githubusercontent.com/6057298/144274288-ccdd5a79-65c5-44da-9148-0355886a2a7c.png)
+
+Then create an `.env` file
+and add your new created api key:
+
+```.env
+ export AUTH_API_KEY=88SwQDtedCxH129mxogVrUioibxjwSnXMx2Rf51XnZH1mAq2k5NZ/88SwQD8htcyBEbioCPGGH8okSJszWNE2nzn5BxfhxNtzHWrz94Bb/dwylauth.herokuapp.com
+```
+
+Add the [auth_plug](https://github.com/dwyl/auth_plug) package to your dependencies.
+In `mix.exs` file update your `deps` function and add:
+
+```elixir
+{:auth_plug, "~> 1.4.10"}
+```
+This dependency will create new sessions for you and communicate with the dwyl auth application.
+
+Don't forget to:
+- load your key: `source .env`
+- get the dependencies: `mix deps.get`
+
+Make sure the `AUTH_API_KEY` is accessible
+before the new dependency is compiled. <br />
+You can recompile the dependencies with `mix deps.compile --force`.
+
+Now we can start adding the authentication feature.
+The first step is to define the `/` endpoint in the auth pipeline.
+In the router file, we create a new `Plug` pipeline:
+
+```elixir
+# define the new pipeline using auth_plug
+pipeline :authOptional, do: plug(AuthPlugOptional)
+
+scope "/", LiveviewChatWeb do
+  # add the pipeline
+  pipe_through [:browser, :authOptional]
+  live "/", MessageLive
+end
+```
+
+To let "guest" users still be able to use the chat without having to login
+we use the `AuthPlugOptional` plug.
+Read more about [optional auth](https://github.com/dwyl/auth_plug#optional-auth).
+
+Now we can start creating the `login` endpoint.
+Add the `/login` endpoint in a new scope which only use the `:browser` pipeline:
+
+```elixir
+scope "/", LiveviewChatWeb do
+  pipe_through :browser
+  get "/login", AuthController, :login
+end
+```
+
+And let's create the `AuthController` in the file
+`lib/liveview_chat_web/controllers/auth_controller.ex`:
+
+```elixir
+defmodule LiveviewChatWeb.AuthController do
+  use LiveviewChatWeb, :controller
+
+  def login(conn, _params) do
+    redirect(conn, external: AuthPlug.get_auth_url(conn, "/"))
+  end
+end
+```
+
+We create the `login` action which will redirect to the dwyl auth application.
+Read more about how to use the
+[`AuthPlug.get_auth_url/2`](https://hexdocs.pm/auth_plug/AuthPlug.html#get_auth_url/2)
+function.
+Once authenticated the user will be redirected to the `/` endpoint
+and a `jwt` session is created on the client.
+
+
+Phoenix LiveView provides the [on_mount](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#on_mount/1)
+callback which lets us define code to run before the `mount` code is run.
+We'll use this callback to verify the `jwt` session and
+to assign the `person` and `loggedin` values to the socket.
+In the `AuthController` define the `on_mount` function:
+
+```elixir
+# import the assign_new function from LiveView
+import Phoenix.LiveView, only: [assign_new: 3]
+
+# pattern match on :default auth and check session has jwt
+def on_mount(:default, _params, %{"jwt" => jwt} = _session, socket) do
+  # verify and retrieve jwt stored data
+  claims = AuthPlug.Token.verify_jwt!(jwt)
+
+  # assigns the person and the loggedin values
+  socket =
+    socket
+    |> assign_new(:person, fn ->
+      AuthPlug.Helpers.strip_struct_metadata(claims)
+    end)
+    |> assign_new(:loggedin, fn -> true end)
+
+  {:cont, socket}
+end
+
+# when jwt not defined just returns the current socket
+def on_mount(:default, _params, _session, socket) do
+  socket = assign_new(socket, :loggedin, fn -> false end)
+  {:cont, socket}
+end
+```
+
+The [assign_new/3](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#assign_new/3)
+function assigns a value to the socket only if it doesn't exists already.
+
+Once the `on_mount` callback is defined,
+we can call it in our `lib/liveview_chat_web/live/message_live.ex` file:
+
+```elixir
+defmodule LiveviewChatWeb.MessageLive do
+  use LiveviewChatWeb, :live_view
+  alias LiveviewChat.Message
+  # run authentication on mount
+  on_mount LiveviewChatWeb.AuthController
+```
+
+We now have all the logic to let a person authenticate on the application,
+we just need to update our root layout file
+`lib/liveview_chat_web/templates/layout/root.html.heex`
+to display a login link:
+
+```html
+<body>
+  <header>
+    <section class="container">
+      <nav>
+        <ul>
+          <%= if @loggedin do %>
+            <li>
+              <img width="40px" src={@person.picture}/>
+            </li>
+            <li><%= link "logout", to: "/logout" %></li>
+          <% else %>
+            <li><%= link "Login", to: "/login" %></li>
+          <% end %>
+        </ul>
+      </nav>
+      <h1>LiveView Chat Example</h1>
+    </section>
+  </header>
+  <%= @inner_content %>
+</body>
+```
+
+If the person is `loggedin` we display a `logout` link and the person's profile picture
+otherwise the `login` link is displayed.
+
+Finally we can define the `logout` endpoint. In the router add the new endpoint:
+
+```elixir
+scope "/", LiveviewChatWeb do
+  pipe_through [:browser, :authOptional]
+
+  # add logout endpoint
+  get "/logout", AuthController, :logout
+  live "/", MessageLive
+end
+```
+
+And define the `logout` action in the `AuthController`:
+
+```elixir
+def logout(conn, _params) do
+  conn
+  |> AuthPlug.logout()
+  |> put_status(302)
+  |> redirect(to: "/")
+end
+```
+
+`AuthPlug` provides the logout function which removes the jwt session.
+
+The last step is to display the name of the loggedin person in the name field of the message form.
+For that we can update the form changeset in the `mount` function to set the name parameters:
+
+```elixir
+def mount(_params, _session, socket) do
+  if connected?(socket), do: Message.subscribe()
+
+  # add name parameter if loggedin
+  changeset =
+    if socket.assigns.loggedin do
+      Message.changeset(%Message{}, %{"name" => socket.assigns.person["givenName"]})
+    else
+      Message.changeset(%Message{}, %{})
+    end
+
+  messages = Message.list_messages() |> Enum.reverse()
+
+  {:ok, assign(socket, messages: messages, changeset: changeset),
+   temporary_assigns: [messages: []]}
+end
+```
+
+You can now run the application and be able to login/logout!
+
+![logout-button](https://user-images.githubusercontent.com/194400/145076949-e8e7cebd-9b20-4d1f-b932-68a00977acec.png)
 
 ## What's next?
 
