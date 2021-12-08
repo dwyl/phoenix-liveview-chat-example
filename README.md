@@ -619,14 +619,9 @@ https://hexdocs.pm/phoenix_live_view/dom-patching.html#temporary-assigns
 
 ## Authentication
 
-Currently the name is left to the person to add manually in the form.
-This work well for this example as people can test the chat feature easily.
-
-However we can add authentication to the application to have the name field
-defined automatically.
-
-We have created our own authentication application (see our [auth app](https://github.com/dwyl/auth)) 
-to make it easier for us to add login feature to any of our apps.
+Currently the name field is left to the person to add it manually in the form.
+In this section we'll add authentication to the application using the 
+dwyl [auth app](https://github.com/dwyl/auth) to prefill the name in the message form.
 
 You need to first to create a new api key at https://dwylauth.herokuapp.com/:
 
@@ -638,23 +633,194 @@ Then create a `.env` file and add your new created api key:
  export AUTH_API_KEY=88SwQDtedCxH129mxogVrUioibxjwSnXMx2Rf51XnZH1mAq2k5NZ/88SwQD8htcyBEbioCPGGH8okSJszWNE2nzn5BxfhxNtzHWrz94Bb/dwylauth.herokuapp.com 
 ```
 
-Add the [auth_plug]() package to your dependencies.
+Add the [auth_plug](https://github.com/dwyl/auth_plug) package to your dependencies.
 In `mix.exs` file update your `deps` function and add:
 
 ```elixir
-{:auth_plug, "~> 1.4.7"}
+{:auth_plug, "~> 1.4.10"}
 ```
+This dependency will create new sessions for you and communicate with the dwyl auth application.
 
 Don't forget to:
 - load your key: `source .env`
 - get the dependencies: `mix deps.get`
 
-If you encounter an error similar to:
+Make sure the `AUTH_API_KEY` is accessible before the new dependency is compiled.
+You can recompile the dependencies with `mix deps.compile --force`.
 
-It means that the `auth_plug` dependencies hasn't been able to
-retrieve the api key from the `.env` file during compilation.
-Make sure to source your key and try to recompile your dependencies.
+Now we can start adding the authentication feature.
+The first step is to define the `/` endpoint in the auth pipeline.
+In the router file, we create a new `Plug` pipeline:
 
+```elixir
+  # define the new pipeline using auth_plug
+  pipeline :authOptional, do: plug(AuthPlugOptional)
+
+  scope "/", LiveviewChatWeb do
+    # add the pipeline
+    pipe_through [:browser, :authOptional]
+    live "/", MessageLive
+  end
+```
+
+To let "guest" users still be able to use the chat without having to login 
+we use the `AuthPlugOptional` plug.
+Read more about [optional auth](https://github.com/dwyl/auth_plug#optional-auth).
+
+Now we can start creating the `login` endpoint.
+Add the `/login` endpoint in a new scope which only use the `:browser` pipeline:
+
+```elixir
+  scope "/", LiveviewChatWeb do
+    pipe_through :browser
+    get "/login", AuthController, :login
+  end
+```
+
+And let's create the `AuthController` in the file `lib/liveview_chat_web/controllers/auth_controller.ex`:
+
+```elixir
+defmodule LiveviewChatWeb.AuthController do
+  use LiveviewChatWeb, :controller
+
+  def login(conn, _params) do
+    redirect(conn, external: AuthPlug.get_auth_url(conn, "/"))
+  end
+end
+```
+
+We create the `login` action which will redirect to the dwyl auth application.
+Read more about how to use the [AuthPlug.get_auth_url/2 function](https://hexdocs.pm/auth_plug/AuthPlug.html#get_auth_url/2). 
+Once authenticated the user will be redirected to the `/` endpoint and a `jwt` session is created on the client.
+
+
+Phoenix LiveView provides the [on_mount](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#on_mount/1) 
+callback which lets us define code to run before the `mount` code is run.
+We'll use this callback to verify the jwt session and 
+to assign the `person` and `loggedin` values to the socket.
+In the `AuthController` define the `on_mount` function:
+
+```elixir
+  # import the assign_new function from LiveView
+  import Phoenix.LiveView, only: [assign_new: 3]
+  
+  # pattern match on :default auth and check session has jwt
+  def on_mount(:default, _params, %{"jwt" => jwt} = _session, socket) do
+    # verify and retrieve jwt stored data
+    claims = AuthPlug.Token.verify_jwt!(jwt)
+  
+    # assigns the person and the loggedin values
+    socket =
+      socket
+      |> assign_new(:person, fn ->
+        AuthPlug.Helpers.strip_struct_metadata(claims)
+      end)
+      |> assign_new(:loggedin, fn -> true end)
+
+    {:cont, socket}
+  end
+  
+  # when jwt not defined just returns the current socket
+  def on_mount(:default, _params, _session, socket) do
+    socket = assign_new(socket, :loggedin, fn -> false end)
+    {:cont, socket}
+  end
+``` 
+
+The [assign_new/3](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#assign_new/3) 
+function assigns a value to the socket only if it doesn't exists already.
+
+Once the `on_mount` callback is defined, 
+we can call it in our `lib/liveview_chat_web/live/message_live.ex` file:
+
+```elixir
+defmodule LiveviewChatWeb.MessageLive do
+  use LiveviewChatWeb, :live_view
+  alias LiveviewChat.Message
+  # run authentication on mount
+  on_mount LiveviewChatWeb.AuthController
+```
+
+We now have all the logic to let a person authenticate on the application,
+we just need to update our root layout file `lib/liveview_chat_web/templates/layout/root.html.heex` 
+to display a login link:
+
+```heex
+  <body>
+    <header>
+      <section class="container">
+        <nav>
+          <ul>
+            <%= if @loggedin do %>
+              <li>
+                <img width="40px" src={@person.picture}/>
+              </li>
+              <li><%= link "logout", to: "/logout" %></li>
+            <% else %>
+              <li><%= link "Login", to: "/login" %></li>
+            <% end %>
+          </ul>
+        </nav>
+        <h1>LiveView Chat Example</h1>
+      </section>
+    </header>
+    <%= @inner_content %>
+  </body>
+```
+
+If the person is `loggedin` we display a `logout` link and the person's profile picture
+otherwise the `login` link is displayed.
+
+Finally we can define the `logout` endpoint. In the router add the new endpoint:
+
+```elixir
+  scope "/", LiveviewChatWeb do
+    pipe_through [:browser, :authOptional]
+    
+    # add logout endpoint
+    get "/logout", AuthController, :logout
+    live "/", MessageLive
+  end
+```
+
+And define the `logout` action in the `AuthController`:
+
+```elixir
+  def logout(conn, _params) do
+    conn
+    |> AuthPlug.logout()
+    |> put_status(302)
+    |> redirect(to: "/")
+  end
+```
+
+`AuthPlug` provides the logout function which removes the jwt session.
+
+The last step is to display the name of the loggedin person in the name field of the message form.
+For that we can update the form changeset in the `mount` function to set the name parameters:
+
+```elixir
+  def mount(_params, _session, socket) do
+    if connected?(socket), do: Message.subscribe()
+    
+    # add name parameter if loggedin
+    changeset =
+      if socket.assigns.loggedin do
+        Message.changeset(%Message{}, %{"name" => socket.assigns.person["givenName"]})
+      else
+        Message.changeset(%Message{}, %{})
+      end
+
+    messages = Message.list_messages() |> Enum.reverse()
+
+    {:ok, assign(socket, messages: messages, changeset: changeset),
+     temporary_assigns: [messages: []]}
+  end
+```
+
+You can now run the application and be able to login/logout!
+
+![image](https://user-images.githubusercontent.com/194400/145076949-e8e7cebd-9b20-4d1f-b932-68a00977acec.png)
 
 ## What's next?
 
