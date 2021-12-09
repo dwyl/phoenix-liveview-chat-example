@@ -18,7 +18,7 @@
 - [PubSub](#pubsub)
 - [Hooks](#hooks)
 - [Temporary assigns](#temporary-assigns)
-- [Autentication](#authentication)
+- [Authentication](#authentication)
 - [What's next](#whats-next)
 
 ## Initialisation
