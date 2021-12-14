@@ -17,3 +17,10 @@
    <%= submit "Send"%>
  </.form>
 
+<ul>
+   <%= for name <- @presence do %>
+     <li>
+       <%= name %>
+     </li>
+   <% end %>
+</ul>
