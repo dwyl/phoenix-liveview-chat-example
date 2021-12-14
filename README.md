@@ -19,6 +19,7 @@
 - [Hooks](#hooks)
 - [Temporary assigns](#temporary-assigns)
 - [Authentication](#authentication)
+- [Presence](#presence)
 - [What's next](#whats-next)
 
 ## Initialisation
@@ -838,6 +839,213 @@ end
 You can now run the application and be able to login/logout!
 
 ![logout-button](https://user-images.githubusercontent.com/194400/145076949-e8e7cebd-9b20-4d1f-b932-68a00977acec.png)
+
+## Presence
+
+In this section we will use [Phoenix Presence](https://hexdocs.pm/phoenix/Phoenix.Presence.html)
+to display a list of users who are currently using the application.
+
+The first step is to create the `lib/liveview_chat/presence.ex` file:
+
+```elixir
+defmodule LiveviewChat.Presence do
+  use Phoenix.Presence,
+    otp_app: :liveview_chat,
+    pubsub_server: LiveviewChat.PubSub
+end
+```
+
+Then in `lib/liveview_chat/application.ex` we add the new created `Presence`
+module to the list of applications to start:
+
+```elixir
+  def start(_type, _args) do
+    children = [
+      # Start the Ecto repository
+      LiveviewChat.Repo,
+      # Start the Telemetry supervisor
+      LiveviewChatWeb.Telemetry,
+      # Start the PubSub system
+      {Phoenix.PubSub, name: LiveviewChat.PubSub},
+      # Presence
+      LiveviewChat.Presence,
+      # Start the Endpoint (http/https)
+      LiveviewChatWeb.Endpoint
+      # Start a worker by calling: LiveviewChat.Worker.start_link(arg)
+      # {LiveviewChat.Worker, arg}
+    ]
+...
+```
+
+We are now ready to use the Presence features in our liveview endpoint.
+In `lib/liveview_chat_web/live/message_live.ex` update the `mount` function with:
+
+
+```elixir
+  @presence_topic "liveview_chat_presence"
+
+  def mount(_params, _session, socket) do
+    if connected?(socket) do
+      Message.subscribe()
+
+      {id, name} =
+        if socket.assigns.loggedin do
+          {socket.assigns.person["id"], socket.assigns.person["givenName"]}
+        else
+          {socket.id, "guest"}
+        end
+
+      {:ok, _} = Presence.track(self(), @presence_topic, id, %{name: name})
+      Phoenix.PubSub.subscribe(PubSub, @presence_topic)
+    end
+
+    changeset =
+      if socket.assigns.loggedin do
+        Message.changeset(%Message{}, %{"name" => socket.assigns.person["givenName"]})
+      else
+        Message.changeset(%Message{}, %{})
+      end
+
+    messages = Message.list_messages() |> Enum.reverse()
+
+    {:ok,
+     assign(socket,
+       messages: messages,
+       changeset: changeset,
+       presence: get_presence_names()
+     ), temporary_assigns: [messages: []]}
+  end
+```
+
+Let's see what are the main changes in the function:
+
+
+We first create the module attribute `@presence_topic` to define the `topic`
+we'll use with the Presence functions.
+
+
+The following part of the code defines a tuple containing an id of the user and
+the person's name. The name is default to "guest" if the person is not loggedin.
+
+```elixir
+{id, name} =
+    if socket.assigns.loggedin do
+        {socket.assigns.person["id"], socket.assigns.person["givenName"]}
+     else
+        {socket.id, "guest"}
+    end
+```
+
+We then use the [track/4](https://hexdocs.pm/phoenix/Phoenix.Presence.html#c:track/4)
+to let Presence knows that a new client is looking at the application:
+
+```elixir
+{:ok, _} = Presence.track(self(), @presence_topic, id, %{name: name})
+```
+
+We use PubSub to listen to Presence changes (person joining or leaving the application):
+
+```elixir
+Phoenix.PubSub.subscribe(PubSub, @presence_topic)
+```
+
+Finally we create a new `presence` assign in the socket:
+
+```elixir
+presence: get_presence_names()
+```
+
+`get_presence_names` function will return a list of loggedin users and if any
+the number of "guest" users.
+
+
+Add the following code at the end of the `MessageLive` module:
+
+```elixir
+  defp get_presence_names() do
+    Presence.list(@presence_topic)
+    |> Enum.map(fn {_k, v} -> List.first(v.metas).name end)
+    |> group_names()
+  end
+
+  # return list of names and number of guests
+  defp group_names(names) do
+    loggedin_names = Enum.filter(names, fn name -> name != "guest" end)
+
+    guest_names =
+      Enum.count(names, fn name -> name == "guest" end)
+      |> guest_names()
+
+    if guest_names do
+      [guest_names | loggedin_names]
+    else
+      loggedin_names
+    end
+  end
+
+  defp guest_names(0), do: nil
+  defp guest_names(1), do: "1 guest"
+  defp guest_names(n), do: "#{n} guests"
+```
+
+The important function call in the code above is `Presence.list(@presence_topic)`.
+The [list/1](https://hexdocs.pm/phoenix/Phoenix.Presence.html#c:list/1) function
+returns the list of users using the application.
+The function `group_names` and `guest_names` are just here to manipulate the
+Presence data returned by `list`, see https://hexdocs.pm/phoenix/Phoenix.Presence.html#c:list/1-presence-data-structure
+
+So far we've tracked new people using the chat page in the `mount` function and
+we've been using PubSub to listen to presence changes.
+The final step is to handle these changes by adding a `handle_info` function:
+
+```elixir
+def handle_info(%{event: "presence_diff", payload: _diff}, socket) do
+  { :noreply, assign(socket, presence: get_presence_names())}
+end
+```
+
+> Finally, a diff of presence join and leave events will be sent to the clients
+as they happen in real-time with the "presence_diff" event.
+
+The `handle_info` function catches the `presence_diff` event and reassigns to the socket
+the `presence` value with the result of the `get_presence_names` function call.
+
+To display the names we add the following in `lib/liveview_chat_web/templates/message/message.html.heex`
+template file:
+
+
+```heex
+<b>People currently using the app:</b>
+<ul>
+   <%= for name <- @presence do %>
+     <li>
+       <%= name %>
+     </li>
+   <% end %>
+</ul>
+```
+
+You should now be able to run the application and see the loggedin users
+and the number of guest users.
+
+We can test that the template has been properly updated by adding these two
+tests in `test/liveview_chat_web/live/message_live_test.exs` :
+
+```elixir
+  test "1 guest online", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/")
+
+    assert render(view) =~ "1 guest"
+  end
+
+  test "2 guests online", %{conn: conn} do
+    {:ok, _view, _html} = live(conn, "/")
+    {:ok, view2, _html} = live(conn, "/")
+
+    assert render(view2) =~ "2 guests"
+  end
+```
+
 
 ## What's next?
 

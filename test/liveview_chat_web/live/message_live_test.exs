@@ -102,7 +102,7 @@ defmodule LiveviewChatWeb.MessageLiveTest do
     assert render(view) =~ "1 guest"
   end
 
-  test "2 guest online", %{conn: conn} do
+  test "2 guests online", %{conn: conn} do
     {:ok, _view, _html} = live(conn, "/")
     {:ok, view2, _html} = live(conn, "/")
 
