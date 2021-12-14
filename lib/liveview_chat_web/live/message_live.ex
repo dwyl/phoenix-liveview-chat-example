@@ -6,22 +6,21 @@ defmodule LiveviewChatWeb.MessageLive do
   # run authentication on mount
   on_mount LiveviewChatWeb.AuthController
 
+  @presence_topic "liveview_chat_presence"
+
   def mount(_params, _session, socket) do
     if connected?(socket) do
       Message.subscribe()
 
       {id, name} =
         if socket.assigns.loggedin do
-          person_id = socket.assigns.person["id"]
-          person_name = socket.assigns.person["givenName"]
-          {person_id, person_name}
+          {socket.assigns.person["id"], socket.assigns.person["givenName"]}
         else
           {socket.id, "guest"}
         end
 
-      {:ok, _} = Presence.track(self(), "liveview_chat_presence", id, %{name: name})
-
-      Phoenix.PubSub.subscribe(PubSub, "liveview_chat_presence")
+      {:ok, _} = Presence.track(self(), @presence_topic, id, %{name: name})
+      Phoenix.PubSub.subscribe(PubSub, @presence_topic)
     end
 
     changeset =
@@ -33,8 +32,12 @@ defmodule LiveviewChatWeb.MessageLive do
 
     messages = Message.list_messages() |> Enum.reverse()
 
-    {:ok, assign(socket, messages: messages, changeset: changeset, presence: []),
-     temporary_assigns: [messages: []]}
+    {:ok,
+     assign(socket,
+       messages: messages,
+       changeset: changeset,
+       presence: get_presence_names()
+     ), temporary_assigns: [messages: []]}
   end
 
   def render(assigns) do
@@ -56,15 +59,35 @@ defmodule LiveviewChatWeb.MessageLive do
     {:noreply, assign(socket, messages: [message])}
   end
 
-  def handle_info(%{event: "presence_diff", payload: diff}, socket) do
-    # get the list of names
-    names =
-      Presence.list("liveview_chat_presence")
-      |> Enum.map(fn {_k, v} -> List.first(v.metas).name end)
-
+  def handle_info(%{event: "presence_diff", payload: _diff}, socket) do
     {
       :noreply,
-      assign(socket, presence: names)
+      assign(socket, presence: get_presence_names())
     }
   end
+
+  defp get_presence_names() do
+    Presence.list(@presence_topic)
+    |> Enum.map(fn {_k, v} -> List.first(v.metas).name end)
+    |> group_names()
+  end
+
+  # return list of names and number of guests
+  defp group_names(names) do
+    loggedin_names = Enum.filter(names, fn name -> name != "guest" end)
+
+    guest_names =
+      Enum.count(names, fn name -> name == "guest" end)
+      |> guest_names()
+
+    if guest_names do
+      [guest_names | loggedin_names]
+    else
+      loggedin_names
+    end
+  end
+
+  defp guest_names(0), do: nil
+  defp guest_names(1), do: "1 guest"
+  defp guest_names(n), do: "#{n} guests"
 end
