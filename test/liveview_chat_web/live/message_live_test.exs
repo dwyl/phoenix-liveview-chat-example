@@ -95,4 +95,17 @@ defmodule LiveviewChatWeb.MessageLiveTest do
     conn = get(conn, "/login")
     assert redirected_to(conn, 302) =~ "dwylauth"
   end
+
+  test "1 guest online", %{conn: conn} do
+    {:ok, view, _html} = live(conn, "/")
+
+    assert render(view) =~ "1 guest"
+  end
+
+  test "2 guest online", %{conn: conn} do
+    {:ok, _view, _html} = live(conn, "/")
+    {:ok, view2, _html} = live(conn, "/")
+
+    assert render(view2) =~ "2 guests"
+  end
 end
