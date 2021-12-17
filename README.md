@@ -842,8 +842,9 @@ You can now run the application and be able to login/logout!
 
 ## Presence
 
-In this section we will use [Phoenix Presence](https://hexdocs.pm/phoenix/Phoenix.Presence.html)
-to display a list of users who are currently using the application.
+In this section we will use 
+[Phoenix Presence](https://hexdocs.pm/phoenix/Phoenix.Presence.html)
+to display a list of people who are currently using the application.
 
 The first step is to create the `lib/liveview_chat/presence.ex` file:
 
@@ -855,8 +856,10 @@ defmodule LiveviewChat.Presence do
 end
 ```
 
-Then in `lib/liveview_chat/application.ex` we add the new created `Presence`
-module to the list of applications to start:
+Then in `lib/liveview_chat/application.ex` 
+we add the newly created `Presence`
+module to the list of applications 
+for the supervisor to start:
 
 ```elixir
   def start(_type, _args) do
@@ -877,8 +880,9 @@ module to the list of applications to start:
 ...
 ```
 
-We are now ready to use the Presence features in our liveview endpoint.
-In `lib/liveview_chat_web/live/message_live.ex` update the `mount` function with:
+We are now ready to use the Presence features in our liveview endpoint. <br />
+In the `lib/liveview_chat_web/live/message_live.ex` file,
+update the `mount` function with the following:
 
 
 ```elixir
@@ -917,15 +921,15 @@ In `lib/liveview_chat_web/live/message_live.ex` update the `mount` function with
   end
 ```
 
-Let's see what are the main changes in the function:
+Let's recap the main changes to the `mount/3` function:
+
+First we create the module attribute `@presence_topic` 
+to define the `topic` we'll use with the Presence functions.
 
 
-We first create the module attribute `@presence_topic` to define the `topic`
-we'll use with the Presence functions.
-
-
-The following part of the code defines a tuple containing an id of the user and
-the person's name. The name is default to "guest" if the person is not loggedin.
+The following part of the code defines a tuple 
+containing an `id` of the person and their name.
+ The name will default to "guest" if the person is _not_ loggedin.
 
 ```elixir
 {id, name} =
@@ -936,14 +940,14 @@ the person's name. The name is default to "guest" if the person is not loggedin.
     end
 ```
 
-We then use the [track/4](https://hexdocs.pm/phoenix/Phoenix.Presence.html#c:track/4)
+Secondly we use the [track/4](https://hexdocs.pm/phoenix/Phoenix.Presence.html#c:track/4) function
 to let Presence knows that a new client is looking at the application:
 
 ```elixir
 {:ok, _} = Presence.track(self(), @presence_topic, id, %{name: name})
 ```
 
-We use PubSub to listen to Presence changes (person joining or leaving the application):
+Third we use PubSub to listen to Presence changes (person joining or leaving the application):
 
 ```elixir
 Phoenix.PubSub.subscribe(PubSub, @presence_topic)
@@ -1004,8 +1008,9 @@ def handle_info(%{event: "presence_diff", payload: _diff}, socket) do
 end
 ```
 
-> Finally, a diff of presence join and leave events will be sent to the clients
-as they happen in real-time with the "presence_diff" event.
+> Finally, a diff of presence join and leave events 
+will be sent to the clients as they happen in real-time 
+with the "presence_diff" event.
 
 The `handle_info` function catches the `presence_diff` event and reassigns to the socket
 the `presence` value with the result of the `get_presence_names` function call.
@@ -1014,7 +1019,7 @@ To display the names we add the following in `lib/liveview_chat_web/templates/me
 template file:
 
 
-```heex
+```html
 <b>People currently using the app:</b>
 <ul>
    <%= for name <- @presence do %>
