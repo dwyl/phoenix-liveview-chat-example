@@ -14,6 +14,8 @@ defmodule LiveviewChat.Application do
       LiveviewChatWeb.Telemetry,
       # Start the PubSub system
       {Phoenix.PubSub, name: LiveviewChat.PubSub},
+      # Presence
+      LiveviewChat.Presence,
       # Start the Endpoint (http/https)
       LiveviewChatWeb.Endpoint
       # Start a worker by calling: LiveviewChat.Worker.start_link(arg)

@@ -17,3 +17,12 @@
    <%= submit "Send"%>
  </.form>
 
+
+<b>People currently using the app:</b>
+<ul>
+   <%= for name <- @presence do %>
+     <li>
+       <%= name %>
+     </li>
+   <% end %>
+</ul>
