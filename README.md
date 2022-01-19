@@ -4,7 +4,7 @@
 
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/dwyl/phoenix-liveview-chat-example/Elixir%20CI?label=build&style=flat-square)](https://github.com/dwyl/phoenix-liveview-chat-example/actions/workflows/cy.yml)
 [![codecov test coverage](https://img.shields.io/codecov/c/github/dwyl/phoenix-liveview-chat-example/main.svg?style=flat-square)](https://codecov.io/github/dwyl/phoenix-liveview-chat-example?branch=main)
-[![HitCount](http://hits.dwyl.com/dwyl/phoenix-liveview-chat-example.svg?style=flat-square)](http://hits.dwyl.com/dwyl/phoenix-liveview-chat-example)
+[![HitCount](http://hits.dwyl.com/dwyl/phoenix-liveview-chat-example.svg?style=flat-square&show=unique)](http://hits.dwyl.com/dwyl/phoenix-liveview-chat-example)
 
 **Try it**: [**liveview-chat-example.herokuapp**](https://liveview-chat-example.herokuapp.com)
 ![wake-sleeping-heroku-app](https://liveview-chat-example.herokuapp.com/ping)
