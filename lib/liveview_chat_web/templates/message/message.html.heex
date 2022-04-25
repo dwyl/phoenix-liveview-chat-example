@@ -1,6 +1,6 @@
 <ul id='msg-list' phx-update="append">
    <%= for message <- @messages do %>
-     <li id={message.id}>
+     <li id={"msg-#{message.id}"}>
        <b><%= message.name %>:</b>
        <%= message.message %>
      </li>
