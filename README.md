@@ -1,6 +1,6 @@
 <div align="center">
 
-# LiveviewChat
+# `LiveView` Chat _Tutorial_
 
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/dwyl/phoenix-liveview-chat-example/Elixir%20CI?label=build&style=flat-square)](https://github.com/dwyl/phoenix-liveview-chat-example/actions/workflows/cy.yml)
 [![codecov test coverage](https://img.shields.io/codecov/c/github/dwyl/phoenix-liveview-chat-example/main.svg?style=flat-square)](https://codecov.io/github/dwyl/phoenix-liveview-chat-example?branch=main)
@@ -11,49 +11,101 @@
 </div>
 
 ## Content
-- [Initialisation](#initialisation)
-- [LiveView Route, Controller and Template](#liveview-route-controller-and-template)
-- [Migration and Schema](#migration-and-schema)
-- [Handle events](#handle-events)
-- [PubSub](#pubsub)
-- [Hooks](#hooks)
-- [Temporary assigns](#temporary-assigns)
-- [Authentication](#authentication)
-- [Presence](#presence)
-- [What's next](#whats-next)
+- [`LiveView` Chat _Tutorial_](#liveview-chat-tutorial)
+  - [Content](#content)
+  - [0. Prerequisites](#0-prerequisites)
+  - [1. Create `Phoenix` App](#1-create-phoenix-app)
+  - [2. Create `live` Directory, `LiveView` Controller and Template](#2-create-live-directory-liveview-controller-and-template)
+    - [3. Update the Router](#3-update-the-router)
+  - [Migration and Schema](#migration-and-schema)
+  - [Handle events](#handle-events)
+  - [PubSub](#pubsub)
+  - [Hooks](#hooks)
+  - [Temporary assigns](#temporary-assigns)
+  - [Authentication](#authentication)
+  - [Presence](#presence)
+  - [What's next?](#whats-next)
 
-## Initialisation
+## 0. Prerequisites
 
-Let's start by creating the new `liveview_chat` Phoenix application.
+It's _recommended_, 
+though _not required_, 
+that you follow the 
+[`LiveView` Counter Tutorial](https://github.com/dwyl/phoenix-liveview-counter-tutorial).
+At the very least, checkout the list of 
+[prerequisites](https://github.com/dwyl/phoenix-liveview-counter-tutorial#prerequisites-what-you-need-before-you-start-)
+so you know what you need to have
+installed on your computer before 
+you start this adventure!
+
+Provided you have 
+**`Elixir`**, **`Phoenix`** 
+and **`Postgres`** installed,
+you're good to go!
+
+<br />
+
+## 1. Create `Phoenix` App
+
+Start by creating the new **`liveview_chat`** `Phoenix` application:
 
 ```sh
 mix phx.new liveview_chat --no-mailer --no-dashboard
 ```
 
-We don't need mail or dashboard features. You can learn more about creating
-a new Phoenix application with `mix help phx.new`
+We don't need `email` or `dashboard` features 
+so we're excluding them from our app.
+You can learn more about creating
+new Phoenix apps by running:
+`mix help phx.new`
 
-Run `mix deps.get` to retrieve the dependencies, then make sure you have
-the `liveview_chat_dev` Postgres database available.
-You should now be able to start the application with `mix phx.server`:
+Run `mix deps.get` to retrieve the dependencies.
+then make create the
+**`liveview_chat_dev` Postgres database**
+by running the command:
+
+```sh
+mix ecto.setup
+```
+
+You should see output similar to the following:
+
+```sh
+The database for LiveviewChat.Repo has been created
+
+14:20:19.71 [info]  Migrations already up
+```
+
+Once that command succeeds 
+You should now be able to start the application with
+by running the command:
+
+```sh
+mix phx.server
+```
+
+You will see terminal output similar to the following:
+
+```sh
+[info] Running LiveviewChatWeb.Endpoint with cowboy 2.9.0 at 127.0.0.1:4000 (http)
+[debug] Downloading esbuild from https://registry.npmjs.org/esbuild-darwin-64/-/esbuild-darwin-64-0.14.29.tgz
+[info] Access LiveviewChatWeb.Endpoint at http://localhost:4000
+[watch] build finished, watching for changes...
+```
+
+When you open the URL:
+[`http://localhost:4000`](http://localhost:4000)
+in your web browser you should see something similar to:
 
 ![phx.server](https://user-images.githubusercontent.com/6057298/142623156-ab767540-2561-43e3-bc87-1c4f89778d21.png)
 
-## LiveView Route, Controller and Template
+<br />
 
-Open `lib/liveview_chat_web/router.ex` file to remove the current default `PageController`
-controller and add instead a `MessageLive` controller:
+## 2. Create `live` Directory, `LiveView` Controller and Template
 
-
-```elixir
-scope "/", LiveviewChatWeb do
-  pipe_through :browser
-
-  live "/", MessageLive
-end
-```
-
-and create the `live` folder and the  controller at `lib/liveview_chat_web/live/message_live.ex`:
+Create the `lib/liveview_chat_web/live` folder 
+and the controller at 
+`lib/liveview_chat_web/live/message_live.ex`:
 
 ```elixir
 defmodule LiveviewChatWeb.MessageLive do
@@ -68,13 +120,19 @@ defmodule LiveviewChatWeb.MessageLive do
   end
 end
 ```
+> **Note**: neither the file name nor the code 
+> has the word "controller" anywhere, 
 
-A liveView controller requires the function `mount` and `render` to be defined.
-To keep the controller simple we are just returning the {:ok, socket} tuple
-without any changes and the render view calls the `message.html.heex` template.
-So let's create now the `MessageView` module and the `message` template:
+A **`LiveView` controller** requires 
+the functions **`mount/3`** and **`render/1`** to be defined.
+To keep the controller simple the **`mount/3`**
+is just returning the `{:ok, socket}` tuple
+without any changes.
+The **`render/1`** renders the **`message.html.heex`** `template`
+which we will define below.
 
-Similar to normal Phoenix view create the `lib/liveview_chat_web/views/message_view.ex`
+Similar to normal `Phoenix` `view`, create the 
+`lib/liveview_chat_web/views/message_view.ex`
 file:
 
 ```elixir
@@ -83,26 +141,54 @@ defmodule LiveviewChatWeb.MessageView do
 end
 ```
 
-Then the template at `lib/liveview_chat_web/templates/message/message.html.heex`:
+Create the `lib/liveview_chat_web/templates/message` directory,
+then the `template` at 
+`lib/liveview_chat_web/templates/message/message.html.heex`
+with the following content:
 
 ```html
 <h1>LiveView Message Page</h1>
 ```
 
-Finally to make the root layout simpler. Update the `body` content
-of the `lib/liveview_chat_web/templates/layout/root.html.heex` to:
+Finally, to make the **root layout** simpler, 
+open the 
+`lib/liveview_chat_web/templates/layout/root.html.heex`
+file and 
+update the contents of the `<body>` to:
 
 ```html
 <body>
-    <header>
-      <section class="container">
-        <h1>LiveView Chat Example</h1>
-      </section>
-    </header>
-    <%= @inner_content %>
+  <header>
+    <section class="container">
+      <h1>LiveView Chat Example</h1>
+    </section>
+  </header>
+  <%= @inner_content %>
 </body>
 ```
 
+### 3. Update the Router
+
+Now that you've created the necessary files,
+open the 
+`lib/liveview_chat_web/router.ex` 
+file and replace the default route:
+
+```elixir
+get "/", PageController, :index
+```
+
+Remove the current default `PageController`
+controller and add instead a `MessageLive` controller:
+
+
+```elixir
+scope "/", LiveviewChatWeb do
+  pipe_through :browser
+
+  live "/", MessageLive
+end
+```
 
 Now if you refresh the page you should see the following:
 
