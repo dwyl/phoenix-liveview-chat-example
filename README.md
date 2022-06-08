@@ -1,6 +1,6 @@
 <div align="center">
 
-# `LiveView` Chat _Tutorial_
+<h1> `LiveView` Chat _Tutorial_ </h1>
 
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/dwyl/phoenix-liveview-chat-example/Elixir%20CI?label=build&style=flat-square)](https://github.com/dwyl/phoenix-liveview-chat-example/actions/workflows/cy.yml)
 [![codecov test coverage](https://img.shields.io/codecov/c/github/dwyl/phoenix-liveview-chat-example/main.svg?style=flat-square)](https://codecov.io/github/dwyl/phoenix-liveview-chat-example?branch=main)
@@ -10,21 +10,19 @@
 ![wake-sleeping-heroku-app](https://liveview-chat-example.herokuapp.com/ping)
 </div>
 
-## Content
-- [`LiveView` Chat _Tutorial_](#liveview-chat-tutorial)
-  - [Content](#content)
-  - [0. Prerequisites](#0-prerequisites)
-  - [1. Create `Phoenix` App](#1-create-phoenix-app)
-  - [2. Create `live` Directory, `LiveView` Controller and Template](#2-create-live-directory-liveview-controller-and-template)
-    - [3. Update the Router](#3-update-the-router)
-  - [Migration and Schema](#migration-and-schema)
-  - [Handle events](#handle-events)
-  - [PubSub](#pubsub)
-  - [Hooks](#hooks)
-  - [Temporary assigns](#temporary-assigns)
-  - [Authentication](#authentication)
-  - [Presence](#presence)
-  - [What's next?](#whats-next)
+- [0. Prerequisites](#0-prerequisites)
+- [1. Create `Phoenix` App](#1-create-phoenix-app)
+- [2. Create `live` Directory, `LiveView` Controller and Template](#2-create-live-directory-liveview-controller-and-template)
+- [3. Update `router.ex`](#3-update-routerex)
+- [4. Update Tests](#4-update-tests)
+- [5. Migration and Schema](#5-migration-and-schema)
+- [Handle events](#handle-events)
+- [PubSub](#pubsub)
+- [Hooks](#hooks)
+- [Temporary assigns](#temporary-assigns)
+- [Authentication](#authentication)
+- [Presence](#presence)
+- [What's next?](#whats-next)
 
 ## 0. Prerequisites
 
@@ -121,17 +119,23 @@ defmodule LiveviewChatWeb.MessageLive do
 end
 ```
 > **Note**: neither the file name nor the code 
-> has the word "controller" anywhere, 
+> has the word "**controller**" anywhere. 
+> Hopefully it's not confusing.
+> It's a "controller" in the sense 
+> that it controls what happens in the app. 
 
 A **`LiveView` controller** requires 
-the functions **`mount/3`** and **`render/1`** to be defined.
+the functions **`mount/3`** and **`render/1`** to be defined. <br />
 To keep the controller simple the **`mount/3`**
 is just returning the `{:ok, socket}` tuple
 without any changes.
-The **`render/1`** renders the **`message.html.heex`** `template`
+The **`render/1`** 
+invokes 
+`LiveviewChatWeb.MessageView.render/2` (included with `Phoenix`)
+which renders the **`message.html.heex`** `template`
 which we will define below.
 
-Similar to normal `Phoenix` `view`, create the 
+Create the 
 `lib/liveview_chat_web/views/message_view.ex`
 file:
 
@@ -141,10 +145,16 @@ defmodule LiveviewChatWeb.MessageView do
 end
 ```
 
-Create the `lib/liveview_chat_web/templates/message` directory,
-then the `template` at 
-`lib/liveview_chat_web/templates/message/message.html.heex`
-with the following content:
+This is similar to regular `Phoenix` `view`;
+nothing special/interesting here.
+
+Next, create the 
+**`lib/liveview_chat_web/templates/messages`** 
+directory,
+then create  
+**`lib/liveview_chat_web/templates/message/messages.html.heex`**
+file 
+and add the following line of `HTML`:
 
 ```html
 <h1>LiveView Message Page</h1>
@@ -167,19 +177,18 @@ update the contents of the `<body>` to:
 </body>
 ```
 
-### 3. Update the Router
+## 3. Update `router.ex`
 
 Now that you've created the necessary files,
-open the 
+open the router
 `lib/liveview_chat_web/router.ex` 
-file and replace the default route:
+replace the default route `PageController` controller:
 
 ```elixir
 get "/", PageController, :index
 ```
 
-Remove the current default `PageController`
-controller and add instead a `MessageLive` controller:
+with `MessageLive` controller:
 
 
 ```elixir
@@ -192,10 +201,53 @@ end
 
 Now if you refresh the page you should see the following:
 
-![live view page](https://user-images.githubusercontent.com/6057298/142659332-bc15ed66-195a-482f-8925-ec6c57c478c0.png)
+![live view page](https://user-images.githubusercontent.com/194400/172560880-86e92751-2c00-4daf-9e6a-b428dec344ea.png)
 
-At this point we want to update the tests!
-Create the `test/liveview_chat_web/live` folder and the `message_live_test.exs`:
+## 4. Update Tests
+
+At this point we have made a few changes 
+that mean our automated test suite will no longer pass ... 
+Run the tests in your command line with the following command:
+```sh
+mix test
+```
+
+You will see output similar to the following:
+
+```sh
+Generated liveview_chat app
+..
+
+  1) test GET / (LiveviewChatWeb.PageControllerTest)
+     test/liveview_chat_web/controllers/page_controller_test.exs:4
+     Assertion with =~ failed
+     code:  assert html_response(conn, 200) =~ "Welcome to Phoenix!"
+     left:  "<!DOCTYPE html><html lang=\"en\"> <head> <meta charset=\"utf-8\"> <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">
+     <title data-suffix=\" · Phoenix Framework\">LiveviewChat · Phoenix Framework</title> <link phx-track-static rel=\"stylesheet\" href=\"/assets/app.css\">    <script defer phx-track-static type=\"text/javascript\" src=\"/assets/app.js\"></script>  </head>  
+     <body> <header> <section class=\"container\"> 
+     <h1>LiveView Chat Example</h1></section> </header>
+     <h1>LiveView Message Page</h1></main></div>  </body></html>"
+     right: "Welcome to Phoenix!"
+     stacktrace:
+       test/liveview_chat_web/controllers/page_controller_test.exs:6: (test)
+
+Finished in 0.03 seconds (0.02s async, 0.01s sync)
+3 tests, 1 failure
+```
+
+This is because the `page_controller_test.exs` 
+is still expecting the homepage to contain the 
+**`"Welcome to Phoenix!"`** text.
+
+Let's update the tests!
+Create the 
+**`test/liveview_chat_web/live`** 
+folder and the 
+**`message_live_test.exs`** 
+file within it:
+**`test/liveview_chat_web/live/message_live_test.exs`**
+
+Add the following test code to it:
 
 ```elixir
 defmodule LiveviewChatWeb.MessageLiveTest do
@@ -204,38 +256,50 @@ defmodule LiveviewChatWeb.MessageLiveTest do
 
   test "disconnected and connected mount", %{conn: conn} do
     conn = get(conn, "/")
-    assert html_response(conn, 200) =~ "<h1>LiveView Message Page</h1>"
+    assert html_response(conn, 200) =~ "LiveView Message Page"
 
     {:ok, _view, _html} = live(conn)
   end
 end
 ```
 
-We are testing that the `/` endpoint is accessible when the socket is not yet connected,
-then when it is with the `live` function.
+We are testing that the `/` endpoint 
+is accessible and has the text
+**`"LiveView Message Page"`** on the page.
 
 See also the
 [LiveViewTest module](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveViewTest.html)
 for more information about testing and liveView.
 
-Finally you can delete all the default generated code linked to the `PageController`.
+Finally you can delete all the default generated code linked to the `PageController`:
+
 - `rm test/liveview_chat_web/controllers/page_controller_test.exs`
 - `rm lib/liveview_chat_web/controllers/page_controller.ex`
 - `rm test/liveview_chat_web/views/page_view_test.exs`
 - `rm lib/liveview_chat_web/views/page_view.ex`
 - `rm -r lib/liveview_chat_web/templates/page`
 
-You can now run the test with `mix test` command:
+You can now run the test again with `mix test` command.
+You should see the following (tests passing):
 
-![tests-pass](https://user-images.githubusercontent.com/6057298/142856124-5c2d9cc6-9208-4567-b781-0b46081cfed1.png)
+```sh
+Generated liveview_chat app
+...
+
+Finished in 0.1 seconds (0.06s async, 0.1s sync)
+3 tests, 0 failures
+
+Randomized with seed 841084
+```
 
 
-## Migration and Schema
+## 5. Migration and Schema
 
 Now that we have the `LiveView` structure defined,
-we can start to focus on creating messages.
-The database will save the message and the name of the user.
-So we can create a new schema and migration:
+we can focus on creating messages.
+The database will save the message 
+and the name of the sender.
+Let's create a new schema and migration:
 
 ```sh
 mix phx.gen.schema Message messages name:string message:string

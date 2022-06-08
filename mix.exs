@@ -13,6 +13,7 @@ defmodule LiveviewChat.MixProject do
       deps: deps(),
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
+        c: :test,
         coveralls: :test,
         "coveralls.detail": :test,
         "coveralls.post": :test,
@@ -56,7 +57,7 @@ defmodule LiveviewChat.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:excoveralls, "~> 0.14.4", only: [:test, :dev]},
       {:ping, "~> 1.1.0"},
-      {:auth_plug, "~> 1.4"}
+      {:auth_plug, "~> 1.4.13"}
     ]
   end
 
@@ -68,6 +69,7 @@ defmodule LiveviewChat.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
+      c: ["coveralls.html"],
       setup: ["deps.get", "ecto.setup"],
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],

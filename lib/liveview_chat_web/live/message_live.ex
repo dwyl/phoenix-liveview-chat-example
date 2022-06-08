@@ -41,7 +41,7 @@ defmodule LiveviewChatWeb.MessageLive do
   end
 
   def render(assigns) do
-    LiveviewChatWeb.MessageView.render("message.html", assigns)
+    LiveviewChatWeb.MessageView.render("messages.html", assigns)
   end
 
   def handle_event("new_message", %{"message" => params}, socket) do
