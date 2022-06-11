@@ -399,8 +399,6 @@ If we now update the `message.htlm.heex` file to:
 ```
 
 
-
-
 We should see the following page:
 
 ![image](https://user-images.githubusercontent.com/6057298/142882923-db490aea-5af6-49d4-9e45-38c75d05e234.png)

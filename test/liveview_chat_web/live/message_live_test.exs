@@ -91,9 +91,9 @@ defmodule LiveviewChatWeb.MessageLiveTest do
     assert "/" = redirected_to(conn, 302)
   end
 
-  test "test login link redirect to auth", %{conn: conn} do
+  test "test login link redirect to auth.dwyl.com", %{conn: conn} do
     conn = get(conn, "/login")
-    assert redirected_to(conn, 302) =~ "dwylauth"
+    assert redirected_to(conn, 302) =~ "auth.dwyl.com"
   end
 
   test "1 guest online", %{conn: conn} do
