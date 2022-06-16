@@ -16,7 +16,10 @@
 - [3. Update `router.ex`](#3-update-routerex)
 - [4. Update Tests](#4-update-tests)
 - [5. Migration and Schema](#5-migration-and-schema)
-- [Handle events](#handle-events)
+- [6 Update `mount/3` function](#6-update-mount3-function)
+- [7. Update Template](#7-update-template)
+  - [7.1 Update the Test Assertion](#71-update-the-test-assertion)
+- [8. Handle events](#8-handle-events)
 - [PubSub](#pubsub)
 - [Hooks](#hooks)
 - [Temporary assigns](#temporary-assigns)
@@ -291,11 +294,9 @@ Finished in 0.1 seconds (0.06s async, 0.1s sync)
 
 Randomized with seed 841084
 ```
-
-
 ## 5. Migration and Schema
 
-Now that we have the `LiveView` structure defined,
+With the `LiveView` structure defined,
 we can focus on creating messages.
 The database will save the message 
 and the name of the sender.
@@ -305,12 +306,17 @@ Let's create a new schema and migration:
 mix phx.gen.schema Message messages name:string message:string
 ```
 
-and don't forget to run `mix ecto.migrate` to create the new `messages` table.
+> **Note**: don't forget to run `mix ecto.migrate` 
+> to create the new `messages` table in the database.
 
-We can now update the `Message` schema to add functions for creating
-new messages and listing the existing messages. We'll also update the changeset
-to add requirements and validations on the message text.
-Open the `lib/liveview_chat/message.ex` file and update the code with the following:
+We can now update the `Message` schema 
+to add functions for creating new messages 
+and listing the existing messages. 
+We'll also update the changeset
+to add requirements 
+and validations on the message text.
+Open the `lib/liveview_chat/message.ex` file 
+and update the code with the following:
 
 ```elixir
 defmodule LiveviewChat.Message do
@@ -350,79 +356,112 @@ defmodule LiveviewChat.Message do
 end
 ```
 
-We have added the `validate_length` function on the message input to make
-sure messages have at least 2 characters. This is just an example to show how
-the changeset works with the form on the liveView page.
+We have added the `validate_length` function 
+on the message input to ensure
+that messages have at **_least_ 2 characters**. 
+This is just an example to show how
+the `changeset` validation works 
+with the form on the `LiveView` page.
 
-We then created the `create_message` and `list_messages` functions.
-Similar to [phoenix-chat-example](https://github.com/dwyl/phoenix-chat-example/)
-we limit the number of messages returned to the latest 20.
+We then created the `create_message/1` 
+and `list_messages/0` functions.
+Similar to 
+[phoenix-chat-example](https://github.com/dwyl/phoenix-chat-example/)
+we `limit` the number of messages returned 
+to the **_latest_ 20**.
 
+## 6 Update `mount/3` function
 
-We can now update the `lib/liveview_chat_web/live/message_live.ex` file to use
+Open the 
+`lib/liveview_chat_web/live/message_live.ex` 
+file 
+and add the following line at line 3:
+
+```elixir
+alias LiveviewChat.Message
+```
+
+Next update the `mount/3` function in the
+`lib/liveview_chat_web/live/message_live.ex` 
+file to use
 the `list_messages` function:
 
 ```elixir
 def mount(_params, _session, socket) do
   messages = Message.list_messages() |> Enum.reverse()
   changeset = Message.changeset(%Message{}, %{})
-  {:ok, assign(socket, messages: messages, changeset: changeset)}
+  {:ok, assign(socket, changeset: changeset, messages: messages)}
 end
 ```
 
-We get the list of messages and we create a changeset that we'll use for the
-message form.
-We then [assign](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#assign/2)
-the changeset and the messages to the socket which will display them on the liveView page.
+`mount/3` will now get the list of `messages` 
+and create a `changeset` 
+that will be used for the message form.
+We then 
+[assign](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#assign/2)
+the `changeset` and the `messages` to the socket which will display them on the liveView page.
 
-If we now update the `message.htlm.heex` file to:
+## 7. Update Template
+
+Update the 
+`messages.htlm.heex` 
+template to the following code:
 
 ```html
 <ul id='msg-list'>
-   <%= for message <- @messages do %>
-     <li id={message.id}>
-       <b><%= message.name %>:</b>
-       <%= message.message %>
-     </li>
-   <% end %>
+  <%= for message <- @messages do %>
+    <li id={message.id}>
+      <b><%= message.name %>:</b>
+      <%= message.message %>
+    </li>
+  <% end %>
 </ul>
 
 <.form let={f} for={@changeset} id="form" phx-submit="new_message">
-   <%= text_input f, :name, id: "name", placeholder: "Your name", autofocus: "true"  %>
-   <%= error_tag f, :name %>
+  <%= text_input f, :name, id: "name", placeholder: "Your name", autofocus: "true"  %>
+  <%= error_tag f, :name %>
 
-   <%= text_input f, :message, id: "msg", placeholder: "Your message"  %>
-   <%= error_tag f, :message %>
+  <%= text_input f, :message, id: "msg", placeholder: "Your message"  %>
+  <%= error_tag f, :message %>
 
-   <%= submit "Send"%>
+  <%= submit "Send"%>
 </.form>
 ```
 
+It first displays the new messages
+and then provides a form for people 
+to `create` a new message.
 
-We should see the following page:
+If you refresh the page, 
+you should see the following:
 
 ![image](https://user-images.githubusercontent.com/6057298/142882923-db490aea-5af6-49d4-9e45-38c75d05e234.png)
 
 
-the `<.form></.form>` syntax is how to use the form
+The `<.form></.form>` syntax is how to use the form
 [function component](https://hexdocs.pm/phoenix_live_view/Phoenix.Component.html#content).
 > A function component is any function
-that receives an assigns map as argument
-and returns a rendered struct built with the `~H` sigil.
+that receives an `assigns` map as argument
+and returns a rendered `struct` built with the `~H` sigil.
 
+### 7.1 Update the Test Assertion
 
-Finally let's make sure the test are still passing by updating the `assert` to:
+Finally let's make sure the test are still passing by updating the `assert` 
+in the `test/liveview_chat_web/live/message_live_test.exs` file
+to:
 
 ```elixir
-assert html_response(conn, 200) =~ "<h1>LiveView Chat Example</h1>"
+assert html_response(conn, 200) =~ "LiveView Chat"
 ```
 
-As we have deleted the `LiveView Message Page` h1 title, we can test instead
-the title in the root layout and make sure the page is still displayed correctly.
+As we have deleted the `LiveView Message Page` h1 title, 
+we can instead test for the title in the root layout 
+and make sure the page is still displayed correctly.
 
-## Handle events
+## 8. Handle events
 
-At the moment if we submit the form nothing will happen.
+At the moment if we run the `Phoenix` app `mix phx.server`
+and submit the form in the browser nothing will happen.
 If we look at the server log, we see the following:
 
 ```
