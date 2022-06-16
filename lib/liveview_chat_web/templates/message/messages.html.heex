@@ -1,7 +1,7 @@
 <ul id='msg-list' phx-update="append">
    <%= for message <- @messages do %>
      <li id={"msg-#{message.id}"} class="px-5">
-       <small class="float-right text-xs align-middle ">
+       <small class="float-right align-middle ">
          <%= message.inserted_at %>
        </small>
        <b><%= message.name %>:</b>
@@ -13,7 +13,7 @@
 <footer class="fixed bottom-0 w-full bg-slate-300 pb-2 px-5 pt-2">
 <.form let={f} for={@changeset} id="form" phx-submit="new_message" phx-hook="Form">
 
-  <%= if @loggedin do %>
+  <%= if @loggedin and Map.has_key?(@person, :givenName) do %>
     <%= text_input f, :name, id: "name", value: @person.givenName,
     class: "hidden" %>
   <% else %>
@@ -34,3 +34,11 @@
    <%= submit "Send", class: "bg-sky-600 text-white rounded-xl px-4 py-2 mt-2 float-right" %>
  </.form>
 </footer>
+
+<ul class="hidden">
+  <%= for name <- @presence do %>
+    <li>
+      <%= name %>
+    </li>
+  <% end %>
+</ul>

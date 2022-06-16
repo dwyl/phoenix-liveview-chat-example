@@ -13,6 +13,17 @@
     <header class="bg-slate-800 w-full min-h-[15%] pt-5 pb-1 mb-2">
       <section>
         <nav>
+          <div class="text-white width-[10%] float-left ml-3 -mt-5 align-middle">
+          <b>People in Chat:</b>
+          <ul>
+            <%= for name <- @presence do %>
+              <li>
+                <%= name %>
+              </li>
+            <% end %>
+          </ul>
+          </div>
+
           <ul class="float-right mr-3">
             <%= if @loggedin do %>
               <li>

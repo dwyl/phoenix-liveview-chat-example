@@ -106,6 +106,9 @@ defmodule LiveviewChatWeb.MessageLiveTest do
     {:ok, _view, _html} = live(conn, "/")
     {:ok, view2, _html} = live(conn, "/")
 
+    conn = get(conn, "/")
+    assert html_response(conn, 200) =~ "LiveView Chat"
+    
     assert render(view2) =~ "2 guests"
   end
 end

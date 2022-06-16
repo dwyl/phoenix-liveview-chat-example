@@ -1,6 +1,6 @@
 <div align="center">
 
-<h1> `LiveView` Chat _Tutorial_ </h1>
+# `LiveView` Chat _Tutorial_ 
 
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/dwyl/phoenix-liveview-chat-example/Elixir%20CI?label=build&style=flat-square)](https://github.com/dwyl/phoenix-liveview-chat-example/actions/workflows/cy.yml)
 [![codecov test coverage](https://img.shields.io/codecov/c/github/dwyl/phoenix-liveview-chat-example/main.svg?style=flat-square)](https://codecov.io/github/dwyl/phoenix-liveview-chat-example?branch=main)
@@ -12,34 +12,70 @@
 
 </div>
 
-- [0. Prerequisites](#0-prerequisites)
-- [1. Create `Phoenix` App](#1-create-phoenix-app)
-- [2. Create `live` Directory, `LiveView` Controller and Template](#2-create-live-directory-liveview-controller-and-template)
-- [3. Update `router.ex`](#3-update-routerex)
-- [4. Update Tests](#4-update-tests)
-- [5. Migration and Schema](#5-migration-and-schema)
-- [6 Update `mount/3` function](#6-update-mount3-function)
-- [7. Update Template](#7-update-template)
-  - [7.1 Update the Test Assertion](#71-update-the-test-assertion)
-- [8. Handle Message Creation Events](#8-handle-message-creation-events)
-  - [8.1 Test Message Creation Validation](#81-test-message-creation-validation)
-- [9. PubSub](#9-pubsub)
-  - [9.1 Notify Connected Clients of New Messages](#91-notify-connected-clients-of-new-messages)
-  - [9.2 Update `mount/3`](#92-update-mount3)
-  - [9.3 Update `handle_event/3`](#93-update-handle_event3)
-  - [9.4 Create `handle_info/2`](#94-create-handle_info2)
-  - [9.5 Test Messages are Displaying](#95-test-messages-are-displaying)
-- [10. Hooks](#10-hooks)
-- [11. Optional: Temporary assigns](#11-optional-temporary-assigns)
-- [12. Authentication](#12-authentication)
-  - [12.1 Create `AUTH_API_KEY`](#121-create-auth_api_key)
-  - [12.2 Add `auth_plug` Dependency](#122-add-auth_plug-dependency)
-  - [12.3 Create the _Optional_ Auth Pipeline in `router.ex`](#123-create-the-optional-auth-pipeline-in-routerex)
-  - [12.4 Create `AuthController`](#124-create-authcontroller)
-  - [12.5 Create `on_mount/4` functions](#125-create-on_mount4-functions)
-- [14. Presence](#14-presence)
-- [15. Tailwind CSS Stylin'](#15-tailwind-css-stylin)
-- [What's next?](#whats-next)
+# Why? 🤷
+
+We wanted a **_Free_ & Open Source** 
+step-by-step tutorial 
+with _full_ code,
+tests and _authentication_.
+We wrote this example 
+so we could point 
+people in our team/community 
+learning **`Phoenix LiveView`** to it.
+This `LiveView` example takes you from zero  
+to **_fully_ functioning app**
+in **20 minutes**. 
+
+# What? 💬
+
+Here is the table of contents 
+of what you can expect to cover 
+in this example/tutorial:
+- [`LiveView` Chat _Tutorial_](#liveview-chat-tutorial)
+- [Why? 🤷](#why-)
+- [What? 💬](#what-)
+- [Who? 👤](#who-)
+- [_How_? 💻](#how-)
+  - [0. Prerequisites](#0-prerequisites)
+  - [1. Create `Phoenix` App](#1-create-phoenix-app)
+  - [2. Create `live` Directory, `LiveView` Controller and Template](#2-create-live-directory-liveview-controller-and-template)
+  - [3. Update `router.ex`](#3-update-routerex)
+  - [4. Update Tests](#4-update-tests)
+  - [5. Migration and Schema](#5-migration-and-schema)
+  - [6 Update `mount/3` function](#6-update-mount3-function)
+  - [7. Update Template](#7-update-template)
+    - [7.1 Update the Test Assertion](#71-update-the-test-assertion)
+  - [8. Handle Message Creation Events](#8-handle-message-creation-events)
+    - [8.1 Test Message Creation Validation](#81-test-message-creation-validation)
+  - [9. PubSub](#9-pubsub)
+    - [9.1 Notify Connected Clients of New Messages](#91-notify-connected-clients-of-new-messages)
+    - [9.2 Update `mount/3`](#92-update-mount3)
+    - [9.3 Update `handle_event/3`](#93-update-handle_event3)
+    - [9.4 Create `handle_info/2`](#94-create-handle_info2)
+    - [9.5 Test Messages are Displaying](#95-test-messages-are-displaying)
+  - [10. Hooks](#10-hooks)
+  - [11. Optional: Temporary assigns](#11-optional-temporary-assigns)
+  - [12. Authentication](#12-authentication)
+    - [12.1 Create `AUTH_API_KEY`](#121-create-auth_api_key)
+    - [12.2 Install `auth_plug` ⬇️](#122-install-auth_plug-️)
+    - [12.3 Create the _Optional_ Auth Pipeline in `router.ex`](#123-create-the-optional-auth-pipeline-in-routerex)
+    - [12.4 Create `AuthController`](#124-create-authcontroller)
+    - [12.5 Create `on_mount/4` functions](#125-create-on_mount4-functions)
+  - [14. Presence](#14-presence)
+  - [15. Tailwind CSS Stylin'](#15-tailwind-css-stylin)
+- [What's _Next_?](#whats-next)
+
+# Who? 👤
+
+Anyone learning `Phoenix LiveView` 
+wanting a self-contained tutorial
+including: 
+`Setup`, `Testing`, `Authentication`, `Presence`,
+
+# _How_? 💻
+
+
+
 
 ## 0. Prerequisites
 
@@ -891,7 +927,7 @@ That will allow people using the App
 to authenticate with their `GitHub` or `Google` account
 and then pre-fill the `name` in the message form.
 
-### 12.1 Create `AUTH_API_KEY`
+### 12.1 Create `AUTH_API_KEY` 
 
 As per the 
 [instructions](https://github.com/dwyl/auth_plug#2-get-your-auth_api_key-) 
@@ -911,7 +947,7 @@ export AUTH_API_KEY=88SwQGzaZoJYXs6ihvwMy2dRVtm6KVeg4tSCjRKtwDvMUYUbi/88SwQDatWt
 > **Note**: for security reasons, this is not a valid API key.
 > Please create your own, it's free and takes less than a minute.
 
-### 12.2 Add `auth_plug` Dependency
+### 12.2 Install `auth_plug` ⬇️
 
 Add the [auth_plug](https://github.com/dwyl/auth_plug) package to your dependencies.
 In `mix.exs` file update your `deps` function and add:
@@ -1121,6 +1157,10 @@ You can now run the application and be able to login/logout!
 
 ![logout-button](https://user-images.githubusercontent.com/194400/145076949-e8e7cebd-9b20-4d1f-b932-68a00977acec.png)
 
+<!-- Yes, we know we skipped step 13 ... 
+ mostly to check if you're paying attention. 😜
+ But also because some people find it "unlucky" ...
+ https://en.wikipedia.org/wiki/13_(number)#Luck 🙄 -->
 ## 14. Presence
 
 In this section we will use 
@@ -1296,7 +1336,8 @@ with the "presence_diff" event.
 The `handle_info` function catches the `presence_diff` event and reassigns to the socket
 the `presence` value with the result of the `get_presence_names` function call.
 
-To display the names we add the following in `lib/liveview_chat_web/templates/message/message.html.heex`
+To display the names we add the following in the
+`lib/liveview_chat_web/templates/message/message.html.heex`
 template file:
 
 
@@ -1356,6 +1397,17 @@ with:
     <header class="bg-slate-800 w-full min-h-[15%] pt-5 pb-1 mb-2">
       <section>
         <nav>
+          <div class="text-white width-[10%] float-left ml-3 -mt-5 align-middle">
+          <b>People in Chat:</b>
+          <ul>
+            <%= for name <- @presence do %>
+              <li>
+                <%= name %>
+              </li>
+            <% end %>
+          </ul>
+          </div>
+
           <ul class="float-right mr-3">
             <%= if @loggedin do %>
               <li>
@@ -1377,6 +1429,7 @@ with:
     <%= @inner_content %>
   </body>
 </html>
+
 ```
 
 And then replace the contents of 
@@ -1433,14 +1486,14 @@ and then if you're still stuck,
 
 <br />
 
-## What's next?
+# What's _Next_?
 
 If you found this example useful, 
 please ⭐️ the GitHub repository
 so we (_and others_) know you liked it!
 
 
-Here are other repositories you might want to read:
+Here are a few other repositories you might want to read:
 
 - [github.com/dwyl/**phoenix-chat-example**](https://github.com/dwyl/phoenix-chat-example) 
   A chat application using Phoenix Socket
