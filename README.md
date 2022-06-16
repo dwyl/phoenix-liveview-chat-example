@@ -7,6 +7,9 @@
 [![HitCount](http://hits.dwyl.com/dwyl/phoenix-liveview-chat-example.svg?style=flat-square&show=unique)](http://hits.dwyl.com/dwyl/phoenix-liveview-chat-example)
 
 **Try it**: [**liveview-chat-example.herokuapp**](https://liveview-chat-example.herokuapp.com)
+
+![liveview-chat-with-tailwind-css](https://user-images.githubusercontent.com/194400/174119023-bb83f5f4-867c-4bfa-a005-26b39c700137.gif)
+
 </div>
 
 - [0. Prerequisites](#0-prerequisites)
