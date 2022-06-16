@@ -7,7 +7,6 @@
 [![HitCount](http://hits.dwyl.com/dwyl/phoenix-liveview-chat-example.svg?style=flat-square&show=unique)](http://hits.dwyl.com/dwyl/phoenix-liveview-chat-example)
 
 **Try it**: [**liveview-chat-example.herokuapp**](https://liveview-chat-example.herokuapp.com)
-![wake-sleeping-heroku-app](https://liveview-chat-example.herokuapp.com/ping)
 </div>
 
 - [0. Prerequisites](#0-prerequisites)
@@ -19,8 +18,14 @@
 - [6 Update `mount/3` function](#6-update-mount3-function)
 - [7. Update Template](#7-update-template)
   - [7.1 Update the Test Assertion](#71-update-the-test-assertion)
-- [8. Handle events](#8-handle-events)
-- [PubSub](#pubsub)
+- [8. Handle Message Creation Events](#8-handle-message-creation-events)
+  - [8.1 Test Message Creation Validation](#81-test-message-creation-validation)
+- [9. PubSub](#9-pubsub)
+  - [9.1 Notify Connected Clients of New Messages](#91-notify-connected-clients-of-new-messages)
+  - [9.2 Update `mount/3`](#92-update-mount3)
+  - [9.3 Update `handle_event/3`](#93-update-handle_event3)
+  - [9.4 Create `handle_info/2`](#94-create-handle_info2)
+  - [9.5 Test Messages are Displaying](#95-test-messages-are-displaying)
 - [Hooks](#hooks)
 - [Temporary assigns](#temporary-assigns)
 - [Authentication](#authentication)
@@ -408,16 +413,16 @@ Update the
 template to the following code:
 
 ```html
-<ul id='msg-list'>
+<ul id='msg-list' phx-update="append">
   <%= for message <- @messages do %>
-    <li id={message.id}>
+    <li id={"msg-#{message.id}"}>
       <b><%= message.name %>:</b>
       <%= message.message %>
     </li>
   <% end %>
 </ul>
 
-<.form let={f} for={@changeset} id="form" phx-submit="new_message">
+<.form let={f} for={@changeset} id="form" phx-submit="new_message" phx-hook="Form">
   <%= text_input f, :name, id: "name", placeholder: "Your name", autofocus: "true"  %>
   <%= error_tag f, :name %>
 
@@ -458,7 +463,7 @@ As we have deleted the `LiveView Message Page` h1 title,
 we can instead test for the title in the root layout 
 and make sure the page is still displayed correctly.
 
-## 8. Handle events
+## 8. Handle Message Creation Events
 
 At the moment if we run the `Phoenix` app `mix phx.server`
 and submit the form in the browser nothing will happen.
@@ -480,7 +485,7 @@ On submit the form is creating a new event defined with `phx-submit`:
 
 However this event is not managed on the server yet,
 we can fix this by adding the
-`handle_event` function in
+`handle_event/3` function in
 `lib/liveview_chat_web/live/message_live.ex`:
 
 ```elixir
@@ -497,25 +502,29 @@ end
 ```
 
 The `create_message` function is called with the values from the form.
-If an error occurs while trying to save the information in the database,
-for example the changeset can return an error if the name or the message is
-empty or if the message is too short, the changeset is assigned again to the socket.
-This will allow the form to display the error information:
+If an `error` occurs while trying to save the information in the database,
+for example the `changeset` can return an error if the name or the `message` is
+empty or if the `message` is too short, the `changeset` is assigned again to the socket.
+This will allow the form to display the `error` information:
 
 ![name-cant-be-blank](https://user-images.githubusercontent.com/6057298/142921586-2ed0e7b4-c2a1-4cd2-ab87-154ff4e9f4d8.png)
 
 If the message is saved without any errors,
 we are creating a new changeset which contains the name from the form
-to avoid people to enter their name again in the form, and we assign the new
-changeset to the socket.
+to avoid people having to enter their name again in the form, 
+and we assign the new changeset to the socket.
 
 
 ![chat-basic-message](https://user-images.githubusercontent.com/6057298/142921871-2feb20c2-906e-4640-8781-f8ea776dc05b.png)
 
-Now the form is displayed we can add the following tests:
+### 8.1 Test Message Creation Validation
 
+Now the form is displayed we can add the following tests
+to `test/liveview_chat_web/live/message_live_test.exs`:
 
 ```elixir
+  import Plug.HTML, only: [html_escape: 1]
+
   test "name can't be blank", %{conn: conn} do
     {:ok, view, _html} = live(conn, "/")
 
@@ -547,35 +556,74 @@ function to select the form and trigger
 the submit event with different values for the name and the message.
 We are testing that errors are properly displayed.
 
-
-## PubSub
+## 9. PubSub
 
 Instead of having to reload the page to see the newly created messages,
-we can use [PubSub](https://hexdocs.pm/phoenix_pubsub/Phoenix.PubSub.html)
-to inform all connected clients that a new message has been created and to
+we can use [PubSub](https://hexdocs.pm/phoenix_pubsub/Phoenix.PubSub.html) 
+(**Pub**lish **Sub**scribe)
+to inform all connected clients 
+that a new message has been created and to
 update the UI to display the new message.
 
-We're going to update the `lib/liveview_chat/message.ex` file to add two functions.
-
-- `subscribe` will be called when a client has properly displayed the liveView page
-and listen for new messages.
-
-- `notify` will be call each time a new message is created and to broadcast the
-new message to the other connected clients.
-
-
-Let's first add the line `alias Phoenix.PubSub` at the top of the `message.ex` file.
-Then we can create the `subscribe` function which is just a wrapper function
-for [Phoenix.PubSub.subscribe](https://hexdocs.pm/phoenix_pubsub/Phoenix.PubSub.html#subscribe/3):
-
+Open the `lib/liveview_chat/message.ex` file 
+and add the following line near the top: 
 ```elixir
-def subscribe() do
-  PubSub.subscribe(LiveviewChat.PubSub, "liveview_chat")
-end
+alias Phoenix.PubSub
 ```
 
-We can now connect the client when the LiveView page is rendered.
-For that we update the `mount` function with:
+Next add the following 3 functions:
+
+```elixir
+  def subscribe() do
+    PubSub.subscribe(LiveviewChat.PubSub, "liveview_chat")
+  end
+
+  def notify({:ok, message}, event) do
+    PubSub.broadcast(LiveviewChat.PubSub, "liveview_chat", {event, message})
+  end
+
+  def notify({:error, reason}, _event), do: {:error, reason}
+```
+
+`subscribe/0` will be called when a client has properly displayed the liveView page
+and listen for new messages. 
+It is just a wrapper function for 
+[Phoenix.PubSub.subscribe](https://hexdocs.pm/phoenix_pubsub/Phoenix.PubSub.html#subscribe/3).
+
+`notify/2` is invoked each time a new message is created 
+to broadcast the message to the connected clients.
+`Repo.insert` can either returns `{:ok, message}` or `{:error, reason}`,
+so we need to define `notify/2` handle both cases.
+
+### 9.1 Notify Connected Clients of New Messages
+
+Update the `create_message/1` function in `message.ex`
+to invoke our newly created `notify/2` function:
+
+```elixir
+  def create_message(attrs) do
+    %Message{}
+    |> changeset(attrs)
+    |> Repo.insert()
+    |> notify(:message_created)
+  end
+```
+
+### 9.2 Update `mount/3` 
+
+We can now connect the client 
+when the `LiveView` page is rendered.
+At the top of the 
+`lib/liveview_chat_web/live/message_live.ex`
+file,
+add the following line:
+
+```elixir
+alias LiveviewChat.PubSub
+```
+
+
+Then update the `mount/3` function with:
 
 ```elixir
 def mount(_params, _session, socket) do
@@ -587,33 +635,14 @@ def mount(_params, _session, socket) do
 end
 ```
 
-We check the socket is connected then call the new subscribe function
+`mount/3` now checks the socket is connected 
+then calls the new `Message.subscribe/0` function.
 
-Now that we have a connected client we can create the `notify` function.
-First we update the `create_message` function to call `notify`:
 
-```elixir
-def create_message(attrs) do
-  %Message{}
-  |> changeset(attrs)
-  |> Repo.insert()
-  |> notify(:message_created)
-end
-```
+### 9.3 Update `handle_event/3`
 
-`Repo.insert` can either returns `{:ok, message}` or `{:error, reason}`,
-so we need to define `notify` to be able to manage these two cases:
-
-```elixir
-def notify({:ok, message}, event) do
-  PubSub.broadcast(LiveviewChat.PubSub, "liveview_chat", {event, message})
-end
-
-def notify({:error, reason}, _event), do: {:error, reason}
-```
-
-We need to update `handle_event` function as the return value of `create_message`
-is now different:
+Since the return value of `create_message/1` has changed,
+we need to update `handle_event/3` to the following:
 
 ```elixir
 def handle_event("new_message", %{"message" => params}, socket) do
@@ -621,16 +650,17 @@ def handle_event("new_message", %{"message" => params}, socket) do
     {:error, changeset} ->
       {:noreply, assign(socket, changeset: changeset)}
 
-    :ok -> # broadcast returns :ok if there are no errors
+    :ok -> # broadcast returns :ok (just the atom!) if there are no errors
       changeset = Message.changeset(%Message{}, %{"name" => params["name"]})
       {:noreply, assign(socket, changeset: changeset)}
   end
 end
 ```
+### 9.4 Create `handle_info/2` 
 
-Again the `notify` function is just a wrapper around the `PubSub.broadcast` function.
-
-The last step is to handle the `:message_created` event by defining the `handle_info` function
+The last step 
+is to handle the `:message_created` event 
+by defining the `handle_info/2` function
 in `lib/liveview_chat_web/live/message_live.ex`:
 
 ```elixir
@@ -640,11 +670,17 @@ def handle_info({:message_created, message}, socket) do
 end
 ```
 
-When the event is received, the new message is added to the list of messages.
-The new list is then assigned to the socket which will update the UI and display
-the new message.
+When the event is received, 
+the new message is added to the list of existing messages.
+The new list is then assigned to the socket 
+which will update the UI 
+to display the new message.
 
-Add the following tests to make sure that messages are correctly displayed on the page:
+### 9.5 Test Messages are Displaying
+
+Add the following tests to 
+`test/liveview_chat_web/live/message_live_test.exs`
+to ensure that messages are correctly displayed on the page:
 
 ```elixir
 test "message form submitted correctly", %{conn: conn} do
@@ -670,6 +706,18 @@ end
 ```
 
 You should now have a functional chat application using liveView!
+Run the `Phoenix` App with:
+
+```sh
+mix phx.server
+```
+
+Visit the App [`localhost:4000`](http://localhost:4000/)
+in 2 or more browsers,
+and send yourself some messages!
+
+![liveview-chat-demo](https://user-images.githubusercontent.com/194400/174016930-52b73247-eb7e-4c3e-8a4d-db0929aacc39.gif)
+
 
 ## Hooks
 
@@ -1255,3 +1303,5 @@ Here are other repositories you might want to read:
 Any questions or suggestions? Do not hesitate to [open new issues](https://github.com/dwyl/phoenix-liveview-chat-example/issues)!
 
 Thank you!
+
+![wake-sleeping-heroku-app](https://liveview-chat-example.herokuapp.com/ping)
