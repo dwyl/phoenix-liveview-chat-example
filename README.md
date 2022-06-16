@@ -38,6 +38,7 @@
   - [12.4 Create `AuthController`](#124-create-authcontroller)
   - [12.5 Create `on_mount/4` functions](#125-create-on_mount4-functions)
 - [14. Presence](#14-presence)
+- [15. Tailwind CSS Stylin'](#15-tailwind-css-stylin)
 - [What's next?](#whats-next)
 
 ## 0. Prerequisites
@@ -1331,6 +1332,106 @@ tests in `test/liveview_chat_web/live/message_live_test.exs` :
   end
 ```
 
+## 15. Tailwind CSS Stylin'
+
+If you're new to `Tailwind`,
+please see: https://github.com/dwyl/learn-tailwind
+
+Replace the contents of `lib/liveview_chat_web/templates/layout/root.html.heex`
+with:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="csrf-token" content={csrf_token_value()}>
+    <%= live_title_tag assigns[:page_title] || "LiveviewChat", suffix: " · Phoenix Framework" %>
+    <script defer phx-track-static type="text/javascript" src={Routes.static_path(@conn, "/assets/app.js")}></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body>
+    <header class="bg-slate-800 w-full min-h-[15%] pt-5 pb-1 mb-2">
+      <section>
+        <nav>
+          <ul class="float-right mr-3">
+            <%= if @loggedin do %>
+              <li>
+                <img width="42px" src={@person.picture} class="-mt-3"/>
+              </li>
+              <li class="text-white">
+                <%= link "logout", to: "/logout" %>
+              </li>
+            <% else %>
+              <li class="bg-green-600 text-white rounded-xl px-4 py-2 w-full mb-2 font-bold">
+                <%= link "Login", to: "/login" %>
+              </li>
+            <% end %>
+          </ul>
+        </nav>
+        <h1 class="text-3xl mb-4 text-center font-mono text-white">LiveView Chat Example</h1>
+      </section>
+    </header>
+    <%= @inner_content %>
+  </body>
+</html>
+```
+
+And then replace the contents of 
+`lib/liveview_chat_web/templates/message/messages.html.heex`
+with:
+
+```html
+<ul id='msg-list' phx-update="append">
+   <%= for message <- @messages do %>
+     <li id={"msg-#{message.id}"} class="px-5">
+       <small class="float-right text-xs align-middle ">
+         <%= message.inserted_at %>
+       </small>
+       <b><%= message.name %>:</b>
+       <%= message.message %>
+     </li>
+   <% end %>
+</ul>
+
+<footer class="fixed bottom-0 w-full bg-slate-300 pb-2 px-5 pt-2">
+<.form let={f} for={@changeset} id="form" phx-submit="new_message" phx-hook="Form">
+
+  <%= if @loggedin do %>
+    <%= text_input f, :name, id: "name", value: @person.givenName,
+    class: "hidden" %>
+  <% else %>
+    <%= text_input f, :name, id: "name", placeholder: "Name", autofocus: "true",
+     class: "border p-2 w-9/12 mb-2 mt-2 mr2" %>
+     <span class="italic text-2xl ml-4">or</span>
+     <span class="bg-green-600 text-white rounded-xl px-4 py-2 mb-2 mt-3 float-right">
+       <%= link "Login", to: "/login" %>
+     </span>
+    <%= error_tag f, :name %>
+  <% end %>
+
+   <%= text_input f, :message, id: "msg", placeholder: "Message",
+   class: "border p-2 w-10/12  mb-2 mt-2 float-left"  %>
+   <p class=" text-amber-600">
+    <%= error_tag f, :message %>
+   </p>
+   <%= submit "Send", class: "bg-sky-600 text-white rounded-xl px-4 py-2 mt-2 float-right" %>
+ </.form>
+</footer>
+```
+
+You should now have a UI/layout that looks like this:
+
+![liveview-chat-with-tailwind-css](https://user-images.githubusercontent.com/194400/174119023-bb83f5f4-867c-4bfa-a005-26b39c700137.gif)
+
+If you have questions about any of the **`Tailwind`** classes used,
+please spend 2 mins Googling 
+and then if you're still stuck, 
+[open an issue](https://github.com/dwyl/learn-tailwind/issues).
+
+<br />
 
 ## What's next?
 
