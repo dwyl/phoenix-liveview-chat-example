@@ -26,10 +26,15 @@
   - [9.3 Update `handle_event/3`](#93-update-handle_event3)
   - [9.4 Create `handle_info/2`](#94-create-handle_info2)
   - [9.5 Test Messages are Displaying](#95-test-messages-are-displaying)
-- [Hooks](#hooks)
-- [Temporary assigns](#temporary-assigns)
-- [Authentication](#authentication)
-- [Presence](#presence)
+- [10. Hooks](#10-hooks)
+- [11. Optional: Temporary assigns](#11-optional-temporary-assigns)
+- [12. Authentication](#12-authentication)
+  - [12.1 Create `AUTH_API_KEY`](#121-create-auth_api_key)
+  - [12.2 Add `auth_plug` Dependency](#122-add-auth_plug-dependency)
+  - [12.3 Create the _Optional_ Auth Pipeline in `router.ex`](#123-create-the-optional-auth-pipeline-in-routerex)
+  - [12.4 Create `AuthController`](#124-create-authcontroller)
+  - [12.5 Create `on_mount/4` functions](#125-create-on_mount4-functions)
+- [14. Presence](#14-presence)
 - [What's next?](#whats-next)
 
 ## 0. Prerequisites
@@ -37,8 +42,9 @@
 It's _recommended_, 
 though _not required_, 
 that you follow the 
-[`LiveView` Counter Tutorial](https://github.com/dwyl/phoenix-liveview-counter-tutorial).
-At the very least, checkout the list of 
+[**`LiveView` Counter Tutorial**](https://github.com/dwyl/phoenix-liveview-counter-tutorial)
+as this one is more advanced.
+At least, checkout the list of 
 [prerequisites](https://github.com/dwyl/phoenix-liveview-counter-tutorial#prerequisites-what-you-need-before-you-start-)
 so you know what you need to have
 installed on your computer before 
@@ -719,40 +725,42 @@ and send yourself some messages!
 ![liveview-chat-demo](https://user-images.githubusercontent.com/194400/174016930-52b73247-eb7e-4c3e-8a4d-db0929aacc39.gif)
 
 
-## Hooks
+## 10. Hooks
 
 One issue we can notice is that the message input doesn't always
 reset to an empty value after sending a message using the `Enter` key
 on the input field. This forces us to remove the
 previous message manually before writing and sending a new one.
 
-The reason for that is:
+The reason is:
 
 > The JavaScript client is always the source of truth for current input values.
-For any given **input with focus**, LiveView will never overwrite
-the input's current value, even if it deviates from the server's rendered updates.
-
+For any given **input with focus**, `LiveView` will never overwrite
+the input's current value, 
+even if it deviates from the server's rendered updates.
 see: https://hexdocs.pm/phoenix_live_view/form-bindings.html#javascript-client-specifics
 
 
 Our solution is to use `phx-hook` to run some javascript on the client
-after one of the liveView life-cycle callbacks (mounted, beforeUpdated, updated,
+after one of the `LiveView` life-cycle callbacks 
+(mounted, beforeUpdated, updated,
 destroyed, disconnected, reconnected).
 
 Let's add a hook to monitor when the message form is `updated`.
-In the `message.html.heex` file add the `phx-hook` attribute:
-
+In the `message.html.heex` file 
+add the `phx-hook` attribute to the `<.form>` element:
 
 ```html
 <.form let={f} for={@changeset} id="form" phx-submit="new_message" phx-hook="Form">
 ```
 
-In the `assets/js/app.js` file we can now create the javascript logic:
+Then in the `assets/js/app.js` file,
+add the following `JavaScript` logic:
 
 
 ```js
 // get message input element
-msg = document.getElementById('msg');                                           
+let msg = document.getElementById('msg');                                           
 
 // define "Form" hook, the name must match the one
 // defined with phx-hoo="Form"
@@ -780,19 +788,20 @@ if(document.getElementsByClassName('invalid-feedback').length == 0) {
 }
 ```
 
-Before setting the value to an empty string, we check first that
-no errors are displayed on the form by making sure no `invalid-feedback` tag
-elements are displayed.
+Before setting the value to an empty string, 
+we check first that no errors are displayed 
+on the form by checking for the `invalid-feedback` CSS class.
 (read more about feedback:
   https://hexdocs.pm/phoenix_live_view/form-bindings.html#phx-feedback-for )
 
-The final step is to make sure to set the hooks on the `liveSocket` with `hooks: Hooks`
+The final step is to set the `hooks` on the `liveSocket` 
+with `hooks: Hooks`.
 The message input should now be reset when a new message is added!
 
 
-## Temporary assigns
+## 11. Optional: Temporary assigns
 
-At the moment the `mount` function first initialises the list of messages
+At the moment the `mount/3` function first initializes the list of messages
 by loading the latest 20 messages from the database:
 
 ```elixir
@@ -819,7 +828,8 @@ end
 This can cause issues if the list of messages becomes too long as
 all the messages are kept in memory on the server.
 
-To minimise the use of the memory we can define messages as a temporary assign:
+To minimize the use of the memory, 
+we can define messages as a temporary `assign`:
 
 ```elixir
 def mount(_params, _session, socket) do
@@ -831,12 +841,11 @@ def mount(_params, _session, socket) do
   {:ok, assign(socket, messages: messages, changeset: changeset),
   temporary_assigns: [messages: []]}
 end
-
 ```
 
 The list of messages is retrieved once, then it is reset to an empty list.
 
-Now the `handle_info` only needs to assign the new message to the socket:
+Now the `handle_info/2` only needs to assign the new message to the socket:
 
 
 ```elixir
@@ -859,26 +868,46 @@ with `phx-update` and appends the new message to the existing displayed list.
 </ul>
 ```
 
-See also the Phoenix documentation page:
+See also the Phoenix `temporary-assigns` documentation page:
 https://hexdocs.pm/phoenix_live_view/dom-patching.html#temporary-assigns
 
-## Authentication
+<br />
 
-Currently the `name` field is left to the person to define manually.
-In this section we'll add authentication to the application using
-[`auth`](https://github.com/dwyl/auth) to pre-fill the name in the message form.
+## 12. Authentication
 
-You need to first to create a new **API Key**
-at https://dwylauth.herokuapp.com e.g:
+Currently the `name` field 
+is left to the person to define _manually_
+before they send a message.
+This is fine in a basic demo app,
+but we know we can do better.
+In this section we'll add authentication 
+using
+[**`auth_plug`**](https://github.com/dwyl/auth_plug).
+That will allow people using the App 
+to authenticate with their `GitHub` or `Google` account
+and then pre-fill the `name` in the message form.
 
-![create-api-key](https://user-images.githubusercontent.com/6057298/144274288-ccdd5a79-65c5-44da-9148-0355886a2a7c.png)
+### 12.1 Create `AUTH_API_KEY`
+
+As per the 
+[instructions](https://github.com/dwyl/auth_plug#2-get-your-auth_api_key-) 
+first create a new **API Key** at 
+https://dwylauth.herokuapp.com 
+e.g:
+
+![image](https://user-images.githubusercontent.com/194400/174044750-73dcb29a-b236-40d4-9a91-27144b675320.png)
 
 Then create an `.env` file
 and add your new created api key:
 
 ```.env
- export AUTH_API_KEY=88SwQDtedCxH129mxogVrUioibxjwSnXMx2Rf51XnZH1mAq2k5NZ/88SwQD8htcyBEbioCPGGH8okSJszWNE2nzn5BxfhxNtzHWrz94Bb/dwylauth.herokuapp.com
+export AUTH_API_KEY=88SwQGzaZoJYXs6ihvwMy2dRVtm6KVeg4tSCjRKtwDvMUYUbi/88SwQDatWtSTMd2rKPnaZsAWFNpbf4vv2ZK7JW2nwuSypMeg/dwylauth.herokuapp.com
 ```
+
+> **Note**: for security reasons, this is not a valid API key.
+> Please create your own, it's free and takes less than a minute.
+
+### 12.2 Add `auth_plug` Dependency
 
 Add the [auth_plug](https://github.com/dwyl/auth_plug) package to your dependencies.
 In `mix.exs` file update your `deps` function and add:
@@ -886,7 +915,9 @@ In `mix.exs` file update your `deps` function and add:
 ```elixir
 {:auth_plug, "~> 1.4.10"}
 ```
-This dependency will create new sessions for you and communicate with the dwyl auth application.
+
+This dependency will create new sessions for you 
+and communicate with the dwyl `auth` application.
 
 Don't forget to:
 - load your key: `source .env`
@@ -897,36 +928,46 @@ before the new dependency is compiled. <br />
 You can recompile the dependencies with `mix deps.compile --force`.
 
 Now we can start adding the authentication feature.
-The first step is to define the `/` endpoint in the auth pipeline.
-In the router file, we create a new `Plug` pipeline:
+### 12.3 Create the _Optional_ Auth Pipeline in `router.ex`
+
+To allow [unauthenticated] "guest" users 
+access to the chat
+we use the `AuthPlugOptional` plug.
+Read more at [optional auth](https://github.com/dwyl/auth_plug#optional-auth).
+
+In the `router.ex` file, 
+we create a new `Plug` pipeline:
 
 ```elixir
 # define the new pipeline using auth_plug
 pipeline :authOptional, do: plug(AuthPlugOptional)
-
-scope "/", LiveviewChatWeb do
-  # add the pipeline
-  pipe_through [:browser, :authOptional]
-  live "/", MessageLive
-end
 ```
 
-To let "guest" users still be able to use the chat without having to login
-we use the `AuthPlugOptional` plug.
-Read more about [optional auth](https://github.com/dwyl/auth_plug#optional-auth).
-
-Now we can start creating the `login` endpoint.
-Add the `/login` endpoint in a new scope which only use the `:browser` pipeline:
+Next update the `scope "/", LiveviewChatWeb do` block
+to the following:
 
 ```elixir
 scope "/", LiveviewChatWeb do
-  pipe_through :browser
+  pipe_through [:browser, :authOptional]
+
+  live "/", MessageLive
   get "/login", AuthController, :login
+  get "/logout", AuthController, :logout
 end
 ```
 
-And let's create the `AuthController` in the file
-`lib/liveview_chat_web/controllers/auth_controller.ex`:
+We are now allowing authentication to be _optional_ 
+for all the routes in the router.
+Easy, hey? 😉
+
+### 12.4 Create `AuthController`
+
+Create the `AuthController`
+with both `login/2` and `logout/2` functions.
+
+Create a new file:
+`lib/liveview_chat_web/controllers/auth_controller.ex`
+and add the following code:
 
 ```elixir
 defmodule LiveviewChatWeb.AuthController do
@@ -935,22 +976,42 @@ defmodule LiveviewChatWeb.AuthController do
   def login(conn, _params) do
     redirect(conn, external: AuthPlug.get_auth_url(conn, "/"))
   end
+
+  def logout(conn, _params) do
+    conn
+    |> AuthPlug.logout()
+    |> put_status(302)
+    |> redirect(to: "/")
+  end
 end
 ```
 
-We create the `login` action which will redirect to the dwyl auth application.
+The `login/2` function 
+redirects to the dwyl auth app.
 Read more about how to use the
 [`AuthPlug.get_auth_url/2`](https://hexdocs.pm/auth_plug/AuthPlug.html#get_auth_url/2)
 function.
 Once authenticated the user will be redirected to the `/` endpoint
 and a `jwt` session is created on the client.
 
+The `logout/2` function invokes `AuthPlug.logout/1` 
+which removes the (JWT) session
+and redirects back to the homepage.
 
-Phoenix LiveView provides the [on_mount](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#on_mount/1)
-callback which lets us define code to run before the `mount` code is run.
-We'll use this callback to verify the `jwt` session and
-to assign the `person` and `loggedin` values to the socket.
-In the `AuthController` define the `on_mount` function:
+### 12.5 Create `on_mount/4` functions
+
+`LiveView` provides the 
+[`on_mount`](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#on_mount/1)
+callback that lets us run code 
+_before_ the `mount`.
+We'll use this callback to verify the `jwt` session 
+and assign the `person` (`Map`)
+and `loggedin` (`boolean`) values to the `socket`.
+
+In the
+`lib/liveview_chat_web/controllers/auth_controller.ex` file
+add the following code 
+to define two versions of `mount/4`:
 
 ```elixir
 # import the assign_new function from LiveView
@@ -972,18 +1033,20 @@ def on_mount(:default, _params, %{"jwt" => jwt} = _session, socket) do
   {:cont, socket}
 end
 
-# when jwt not defined just returns the current socket
+# when jwt is not defined just returns the current socket
 def on_mount(:default, _params, _session, socket) do
   socket = assign_new(socket, :loggedin, fn -> false end)
   {:cont, socket}
 end
 ```
 
-The [assign_new/3](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#assign_new/3)
-function assigns a value to the socket only if it doesn't exists already.
+[assign_new/3](https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#assign_new/3)
+assigns a value to the socket if it doesn't exists.
 
-Once the `on_mount` callback is defined,
-we can call it in our `lib/liveview_chat_web/live/message_live.ex` file:
+Once the `on_mount/2` callback is defined,
+we can call it in our 
+`lib/liveview_chat_web/live/message_live.ex` 
+file:
 
 ```elixir
 defmodule LiveviewChatWeb.MessageLive do
@@ -993,10 +1056,10 @@ defmodule LiveviewChatWeb.MessageLive do
   on_mount LiveviewChatWeb.AuthController
 ```
 
-We now have all the logic to let a person authenticate on the application,
+We now have all the logic to let people authenticate,
 we just need to update our root layout file
 `lib/liveview_chat_web/templates/layout/root.html.heex`
-to display a login link:
+to display a `login` (or `logout`) link:
 
 ```html
 <body>
@@ -1021,36 +1084,15 @@ to display a login link:
 </body>
 ```
 
-If the person is `loggedin` we display a `logout` link and the person's profile picture
-otherwise the `login` link is displayed.
+If the person is _not_ yet `loggedin` 
+we display a `login` link 
+otherwise the `logout` link is displayed.
 
-Finally we can define the `logout` endpoint. In the router add the new endpoint:
-
-```elixir
-scope "/", LiveviewChatWeb do
-  pipe_through [:browser, :authOptional]
-
-  # add logout endpoint
-  get "/logout", AuthController, :logout
-  live "/", MessageLive
-end
-```
-
-And define the `logout` action in the `AuthController`:
-
-```elixir
-def logout(conn, _params) do
-  conn
-  |> AuthPlug.logout()
-  |> put_status(302)
-  |> redirect(to: "/")
-end
-```
-
-`AuthPlug` provides the logout function which removes the jwt session.
-
-The last step is to display the name of the loggedin person in the name field of the message form.
-For that we can update the form changeset in the `mount` function to set the name parameters:
+The last step 
+is to display the name of the logged-in person 
+in the name field of the message form.
+For that we can update the form changeset 
+in the `mount` function to set the name parameters:
 
 ```elixir
 def mount(_params, _session, socket) do
@@ -1075,10 +1117,10 @@ You can now run the application and be able to login/logout!
 
 ![logout-button](https://user-images.githubusercontent.com/194400/145076949-e8e7cebd-9b20-4d1f-b932-68a00977acec.png)
 
-## Presence
+## 14. Presence
 
 In this section we will use 
-[Phoenix Presence](https://hexdocs.pm/phoenix/Phoenix.Presence.html)
+[**Phoenix Presence**](https://hexdocs.pm/phoenix/Phoenix.Presence.html)
 to display a list of people who are currently using the application.
 
 The first step is to create the `lib/liveview_chat/presence.ex` file:
@@ -1289,18 +1331,21 @@ tests in `test/liveview_chat_web/live/message_live_test.exs` :
 
 ## What's next?
 
-If you found this example useful, please ⭐️ the GitHub repository
+If you found this example useful, 
+please ⭐️ the GitHub repository
 so we (_and others_) know you liked it!
 
 
 Here are other repositories you might want to read:
 
-- [github.com/dwyl/**phoenix-chat-example**](https://github.com/dwyl/phoenix-chat-example) A chat application using Phoenix Socket
+- [github.com/dwyl/**phoenix-chat-example**](https://github.com/dwyl/phoenix-chat-example) 
+  A chat application using Phoenix Socket
 - [github.com/dwyl/**phoenix-liveview-counter-tutorial**](https://github.com/dwyl/phoenix-liveview-counter-tutorial)
 - [github.com/dwyl/**phoenix-liveview-todo-list-tutorial**](https://github.com/dwyl/phoenix-liveview-todo-list-tutorial)
 
 
-Any questions or suggestions? Do not hesitate to [open new issues](https://github.com/dwyl/phoenix-liveview-chat-example/issues)!
+Any questions or suggestions? Do not hesitate to 
+[open new issues](https://github.com/dwyl/phoenix-liveview-chat-example/issues)!
 
 Thank you!
 

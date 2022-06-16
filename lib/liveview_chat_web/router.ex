@@ -19,13 +19,9 @@ defmodule LiveviewChatWeb.Router do
   scope "/", LiveviewChatWeb do
     pipe_through [:browser, :authOptional]
 
-    get "/logout", AuthController, :logout
     live "/", MessageLive
-  end
-
-  scope "/", LiveviewChatWeb do
-    pipe_through :browser
     get "/login", AuthController, :login
+    get "/logout", AuthController, :logout
     get "/ping", PingController, :ping
   end
 
