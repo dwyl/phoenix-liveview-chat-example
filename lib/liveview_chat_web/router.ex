@@ -9,11 +9,7 @@ defmodule LiveviewChatWeb.Router do
     plug :protect_from_forgery
     plug :put_secure_browser_headers
   end
-
-  pipeline :api do
-    plug :accepts, ["json"]
-  end
-
+  
   pipeline :authOptional, do: plug(AuthPlugOptional)
 
   scope "/", LiveviewChatWeb do
@@ -24,9 +20,4 @@ defmodule LiveviewChatWeb.Router do
     get "/logout", AuthController, :logout
     get "/ping", PingController, :ping
   end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", LiveviewChatWeb do
-  #   pipe_through :api
-  # end
 end
