@@ -12,7 +12,6 @@ defmodule LiveviewChatWeb.MessageLive do
     if connected?(socket) do
       Message.subscribe()
 
-      IO.inspect(socket.assigns, label: "socket.assigns")
       {id, name} =
         if Map.has_key?(socket.assigns, :person) do
           {socket.assigns.person.id, socket.assigns.person.givenName}
@@ -24,7 +23,6 @@ defmodule LiveviewChatWeb.MessageLive do
       Phoenix.PubSub.subscribe(PubSub, @presence_topic)
     end
 
-    IO.inspect(socket.assigns)
     changeset =
       if Map.has_key?(socket.assigns, :person) do
         Message.changeset(%Message{}, %{"name" => socket.assigns.person.givenName})
