@@ -112,7 +112,7 @@ new Phoenix apps by running:
 `mix help phx.new`
 
 Run `mix deps.get` to retrieve the dependencies.
-then make create the
+then create the
 **`liveview_chat_dev` Postgres database**
 by running the command:
 
@@ -129,7 +129,7 @@ The database for LiveviewChat.Repo has been created
 ```
 
 Once that command succeeds 
-You should now be able to start the application with
+You should now be able to start the application
 by running the command:
 
 ```sh
@@ -186,7 +186,7 @@ without any changes.
 The **`render/1`** 
 invokes 
 `LiveviewChatWeb.MessageView.render/2` (included with `Phoenix`)
-which renders the **`message.html.heex`** `template`
+which renders the **`messages.html.heex`** `template`
 which we will define below.
 
 Create the 
@@ -1337,7 +1337,7 @@ The `handle_info` function catches the `presence_diff` event and reassigns to th
 the `presence` value with the result of the `get_presence_names` function call.
 
 To display the names we add the following in the
-`lib/liveview_chat_web/templates/message/message.html.heex`
+`lib/liveview_chat_web/templates/message/messages.html.heex`
 template file:
 
 
