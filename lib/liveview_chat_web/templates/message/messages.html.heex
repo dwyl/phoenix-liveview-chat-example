@@ -13,7 +13,7 @@
 <footer class="fixed bottom-0 w-full bg-slate-300 pb-2 px-5 pt-2">
 <.form let={f} for={@changeset} id="form" phx-submit="new_message" phx-hook="Form">
 
-  <%= if @loggedin and Map.has_key?(@person, :givenName) do %>
+  <%= if @loggedin do %>
     <%= text_input f, :name, id: "name", value: @person.givenName,
     class: "hidden" %>
   <% else %>

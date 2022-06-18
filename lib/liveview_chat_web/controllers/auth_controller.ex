@@ -3,12 +3,14 @@ defmodule LiveviewChatWeb.AuthController do
   import Phoenix.LiveView, only: [assign_new: 3]
 
   def on_mount(:default, _params, %{"jwt" => jwt} = _session, socket) do
-    claims = AuthPlug.Token.verify_jwt!(jwt)
 
     socket =
       socket
       |> assign_new(:person, fn ->
-        AuthPlug.Helpers.strip_struct_metadata(claims)
+        jwt
+        |> AuthPlug.Token.verify_jwt!()
+        |> AuthPlug.Helpers.strip_struct_metadata()
+        |> Useful.atomize_map_keys()
       end)
       |> assign_new(:loggedin, fn -> true end)
 
