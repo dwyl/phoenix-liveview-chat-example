@@ -13,8 +13,8 @@ defmodule LiveviewChatWeb.MessageLive do
       Message.subscribe()
 
       {id, name} =
-        if socket.assigns.loggedin do
-          {socket.assigns.person["id"], socket.assigns.person["givenName"]}
+        if Map.has_key?(socket.assigns, :person) do
+          {socket.assigns.person.id, socket.assigns.person.givenName}
         else
           {socket.id, "guest"}
         end
@@ -24,8 +24,8 @@ defmodule LiveviewChatWeb.MessageLive do
     end
 
     changeset =
-      if socket.assigns.loggedin do
-        Message.changeset(%Message{}, %{"name" => socket.assigns.person["givenName"]})
+      if Map.has_key?(socket.assigns, :person) do
+        Message.changeset(%Message{}, %{"name" => socket.assigns.person.givenName})
       else
         Message.changeset(%Message{}, %{})
       end
@@ -41,7 +41,7 @@ defmodule LiveviewChatWeb.MessageLive do
   end
 
   def render(assigns) do
-    LiveviewChatWeb.MessageView.render("message.html", assigns)
+    LiveviewChatWeb.MessageView.render("messages.html", assigns)
   end
 
   def handle_event("new_message", %{"message" => params}, socket) do
