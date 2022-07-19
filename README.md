@@ -17,7 +17,7 @@
 We _really_ wanted a **_Free_ & Open Source** 
 real-world example
 with _full_ code,
-tests and auth. <br /
+tests and auth. <br />
 We wrote this 
 so we could point 
 people in our team/community 
