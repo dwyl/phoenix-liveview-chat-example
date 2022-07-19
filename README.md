@@ -14,15 +14,15 @@
 
 # Why? 🤷
 
-We wanted a **_Free_ & Open Source** 
-step-by-step tutorial 
+We _really_ wanted a **_Free_ & Open Source** 
+real-world example
 with _full_ code,
-tests and _authentication_.
-We wrote this example 
+tests and auth. <br /
+We wrote this 
 so we could point 
 people in our team/community 
-learning **`Phoenix LiveView`** to it.
-This `LiveView` example takes you from zero  
+learning **`Phoenix LiveView`** to it. <br />
+This `LiveView` example/tutorial takes you from zero 
 to **_fully_ functioning app**
 in **20 minutes**. 
 
