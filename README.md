@@ -455,7 +455,7 @@ the `changeset` and the `messages` to the socket which will display them on the 
 ## 7. Update Template
 
 Update the 
-`messages.htlm.heex` 
+`messages.html.heex` 
 template to the following code:
 
 ```html
