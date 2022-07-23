@@ -203,7 +203,7 @@ This is similar to regular `Phoenix` `view`;
 nothing special/interesting here.
 
 Next, create the 
-**`lib/liveview_chat_web/templates/messages`** 
+**`lib/liveview_chat_web/templates/message`** 
 directory,
 then create  
 **`lib/liveview_chat_web/templates/message/messages.html.heex`**
