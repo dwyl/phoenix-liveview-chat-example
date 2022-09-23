@@ -1,9 +1,8 @@
 defmodule LiveviewChatWeb.AuthController do
   use LiveviewChatWeb, :controller
-  import Phoenix.LiveView, only: [assign_new: 3]
+  import Phoenix.Component, only: [assign_new: 3]
 
   def on_mount(:default, _params, %{"jwt" => jwt} = _session, socket) do
-
     socket =
       socket
       |> assign_new(:person, fn ->
