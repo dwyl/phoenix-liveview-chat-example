@@ -2,7 +2,7 @@
 
 # `LiveView` Chat _Tutorial_ 
 
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/dwyl/phoenix-liveview-chat-example/Elixir%20CI?label=build&style=flat-square)](https://github.com/dwyl/phoenix-liveview-chat-example/actions/workflows/cy.yml)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/dwyl/phoenix-liveview-chat-example/ci.yml?label=build&style=flat-square&branch=main)
 [![codecov test coverage](https://img.shields.io/codecov/c/github/dwyl/phoenix-liveview-chat-example/main.svg?style=flat-square)](https://codecov.io/github/dwyl/phoenix-liveview-chat-example?branch=main)
 [![HitCount](https://hits.dwyl.com/dwyl/phoenix-liveview-chat-example.svg?style=flat-square&show=unique)](https://hits.dwyl.com/dwyl/phoenix-liveview-chat-example)
 
