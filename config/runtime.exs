@@ -6,6 +6,10 @@ import Config
 # and secrets from environment variables or elsewhere. Do not define
 # any compile-time configuration in here, as it won't be applied.
 # The block below contains prod specific runtime configuration.
+if System.get_env("PHX_SERVER") do
+  config :liveview_chat, LiveviewChat.Endpoint, server: true
+end
+
 if config_env() == :prod do
   database_url =
     System.get_env("DATABASE_URL") ||
