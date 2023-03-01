@@ -1,4 +1,4 @@
-# fly.toml file generated for liveview-chat-example on 2023-03-01T10:07:32Z
+# fly.toml file generated for liveview-chat-example on 2023-03-01T11:08:26Z
 
 app = "liveview-chat-example"
 kill_signal = "SIGTERM"
