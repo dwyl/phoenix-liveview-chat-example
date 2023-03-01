@@ -1,6 +1,6 @@
-# fly.toml file generated for dwyl-phoenix-liveview-chat-example on 2023-03-01T09:31:00Z
+# fly.toml file generated for liveview-chat-example on 2023-03-01T10:07:32Z
 
-app = "dwyl-phoenix-liveview-chat-example"
+app = "liveview-chat-example"
 kill_signal = "SIGTERM"
 kill_timeout = 5
 processes = []
@@ -9,7 +9,7 @@ processes = []
   release_command = "/app/bin/migrate"
 
 [env]
-  PHX_HOST = "dwyl-phoenix-liveview-chat-example.fly.dev"
+  PHX_HOST = "liveview-chat-example.fly.dev"
   PORT = "8080"
 
 [experimental]

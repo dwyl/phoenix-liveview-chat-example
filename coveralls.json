@@ -8,6 +8,7 @@
     "lib/liveview_chat/application.ex",
     "lib/liveview_chat_web/views/error_helpers.ex",
     "lib/liveview_chat_web/telemetry.ex",
-    "lib/liveview_chat_web/channels/user_socket.ex"
+    "lib/liveview_chat_web/channels/user_socket.ex",
+    "lib/liveview_chat/release.ex"
   ]
 }
