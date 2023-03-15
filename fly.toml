@@ -1,8 +1,9 @@
-# fly.toml file generated for liveview-chat-example on 2023-03-01T11:08:26Z
+# fly.toml file generated for liveview-chat-example on 2023-03-15T11:43:34Z
 
 app = "liveview-chat-example"
 kill_signal = "SIGTERM"
 kill_timeout = 5
+primary_region = "lhr"
 processes = []
 
 [deploy]
@@ -13,7 +14,6 @@ processes = []
   PORT = "8080"
 
 [experimental]
-  allowed_public_ports = []
   auto_rollback = true
 
 [[services]]
