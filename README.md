@@ -6,8 +6,6 @@
 [![codecov test coverage](https://img.shields.io/codecov/c/github/dwyl/phoenix-liveview-chat-example/main.svg?style=flat-square)](https://codecov.io/github/dwyl/phoenix-liveview-chat-example?branch=main)
 [![HitCount](https://hits.dwyl.com/dwyl/phoenix-liveview-chat-example.svg?style=flat-square&show=unique)](https://hits.dwyl.com/dwyl/phoenix-liveview-chat-example)
 
-**Try it**: [**liveview-chat-example.herokuapp**](https://liveview-chat-example.herokuapp.com)
-
 ![liveview-chat-with-tailwind-css](https://user-images.githubusercontent.com/194400/174119023-bb83f5f4-867c-4bfa-a005-26b39c700137.gif)
 
 </div>
@@ -932,7 +930,7 @@ and then pre-fill the `name` in the message form.
 As per the 
 [instructions](https://github.com/dwyl/auth_plug#2-get-your-auth_api_key-) 
 first create a new **API Key** at 
-https://dwylauth.herokuapp.com 
+https://authdemo.fly.dev/
 e.g:
 
 ![image](https://user-images.githubusercontent.com/194400/174044750-73dcb29a-b236-40d4-9a91-27144b675320.png)
@@ -941,7 +939,7 @@ Then create an `.env` file
 and add your new created api key:
 
 ```.env
-export AUTH_API_KEY=88SwQGzaZoJYXs6ihvwMy2dRVtm6KVeg4tSCjRKtwDvMUYUbi/88SwQDatWtSTMd2rKPnaZsAWFNpbf4vv2ZK7JW2nwuSypMeg/dwylauth.herokuapp.com
+export AUTH_API_KEY=88SwQGzaZoJYXs6ihvwMy2dRVtm6KVeg4tSCjRKtwDvMUYUbi/88SwQDatWtSTMd2rKPnaZsAWFNpbf4vv2ZK7JW2nwuSypMeg/authdemo.fly.dev
 ```
 
 > **Note**: for security reasons, this is not a valid API key.
@@ -1505,5 +1503,3 @@ Any questions or suggestions? Do not hesitate to
 [open new issues](https://github.com/dwyl/phoenix-liveview-chat-example/issues)!
 
 Thank you!
-
-![wake-sleeping-heroku-app](https://liveview-chat-example.herokuapp.com/ping)

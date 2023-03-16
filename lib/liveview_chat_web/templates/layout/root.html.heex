@@ -5,7 +5,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta name="csrf-token" content={csrf_token_value()}>
-    <%= live_title_tag assigns[:page_title] || "LiveviewChat", suffix: " · Phoenix Framework" %>
+    <.live_title suffix=" · Phoenix Framework">
+      <%= assigns[:page_title] || "LiveviewChat" %>
+    </.live_title>
     <script defer phx-track-static type="text/javascript" src={Routes.static_path(@conn, "/assets/app.js")}></script>
     <script src="https://cdn.tailwindcss.com"></script>
   </head>

@@ -9,7 +9,7 @@ defmodule LiveviewChatWeb.Router do
     plug :protect_from_forgery
     plug :put_secure_browser_headers
   end
-  
+
   pipeline :authOptional, do: plug(AuthPlugOptional)
 
   scope "/", LiveviewChatWeb do
@@ -18,6 +18,5 @@ defmodule LiveviewChatWeb.Router do
     live "/", MessageLive
     get "/login", AuthController, :login
     get "/logout", AuthController, :logout
-    get "/ping", PingController, :ping
   end
 end
