@@ -193,7 +193,7 @@ file:
 
 ```elixir
 defmodule LiveviewChatWeb.MessageView do
-  use LiveviewChatWeb, :view
+  use LiveviewChatWeb, :live_view
 end
 ```
 
