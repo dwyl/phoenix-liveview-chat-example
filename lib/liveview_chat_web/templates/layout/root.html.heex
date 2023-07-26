@@ -8,6 +8,7 @@
     <.live_title suffix=" · Phoenix Framework">
       <%= assigns[:page_title] || "LiveviewChat" %>
     </.live_title>
+    <link phx-track-static rel="stylesheet" href={Routes.static_path(@conn, "/assets/app.css")} />
     <script
       defer
       phx-track-static
@@ -21,7 +22,7 @@
       <section>
         <nav>
           <div class="text-white width-[10%] float-left ml-3 -mt-5 align-middle">
-            <b>People in Chat:</b>
+            <b class="red">People in Chat:</b>
             <ul>
               <%= for name <- @presence do %>
                 <li>
