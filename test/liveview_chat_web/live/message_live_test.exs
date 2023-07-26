@@ -57,7 +57,14 @@ defmodule LiveviewChatWeb.MessageLiveTest do
   end
 
   test "get / with valid JWT", %{conn: conn} do
-    data = %{email: "test@dwyl.com", givenName: "Simon", picture: "this", auth_provider: "GitHub", id: 1}
+    data = %{
+      email: "test@dwyl.com",
+      givenName: "Simon",
+      picture: "this",
+      auth_provider: "GitHub",
+      id: 1
+    }
+
     jwt = AuthPlug.Token.generate_jwt!(data)
 
     {:ok, view, _html} = live(conn, "/?jwt=#{jwt}")
