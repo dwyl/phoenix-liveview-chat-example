@@ -11,6 +11,7 @@ defmodule LiveviewChat.MixProject do
       aliases: aliases(),
       deps: deps(),
       test_coverage: [tool: ExCoveralls],
+      compilers: [:leex, :yecc] ++ Mix.compilers(),
       preferred_cli_env: [
         c: :test,
         coveralls: :test,
@@ -46,6 +47,7 @@ defmodule LiveviewChat.MixProject do
       {:ecto_sql, "~> 3.6"},
       {:postgrex, ">= 0.0.0"},
       {:phoenix_html, "~> 4.0"},
+      {:phoenix_html_helpers, "~> 1.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_live_view, "~> 0.20.1"},
       {:phoenix_view, "~> 2.0"},
@@ -56,8 +58,9 @@ defmodule LiveviewChat.MixProject do
       {:gettext, "~> 0.18"},
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
+      {:auth_plug, "~> 1.4"},
       {:excoveralls, "~> 0.18.0", only: [:test, :dev]},
-      {:auth_plug, "~> 1.4"}
+      {:tailwind, "~> 0.2", only: :dev}
     ]
   end
 
@@ -74,7 +77,7 @@ defmodule LiveviewChat.MixProject do
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
-      "assets.deploy": ["esbuild default --minify", "phx.digest"],
+      "assets.deploy": ["tailwind default --minify","esbuild default --minify", "phx.digest"],
       cover: ["coveralls.json"],
       "cover.html": ["coveralls.html"]
     ]
