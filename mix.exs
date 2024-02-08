@@ -11,6 +11,7 @@ defmodule LiveviewChat.MixProject do
       aliases: aliases(),
       deps: deps(),
       test_coverage: [tool: ExCoveralls],
+      compilers: [:leex] ++ Mix.compilers(),
       preferred_cli_env: [
         c: :test,
         coveralls: :test,
