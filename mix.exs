@@ -46,9 +46,9 @@ defmodule LiveviewChat.MixProject do
       {:phoenix_ecto, "~> 4.4"},
       {:ecto_sql, "~> 3.6"},
       {:postgrex, ">= 0.0.0"},
-      {:phoenix_html, "~> 3.0"},
+      {:phoenix_html, "~> 4.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
-      {:phoenix_live_view, "~> 0.19.0"},
+      {:phoenix_live_view, "~> 0.20.1"},
       {:phoenix_view, "~> 2.0"},
       {:floki, ">= 0.30.0", only: :test},
       {:esbuild, "~> 0.2", runtime: Mix.env() == :dev},
@@ -57,8 +57,8 @@ defmodule LiveviewChat.MixProject do
       {:gettext, "~> 0.18"},
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
-      {:excoveralls, "~> 0.16.0", only: [:test, :dev]},
       {:auth_plug, "~> 1.4"},
+      {:excoveralls, "~> 0.18.0", only: [:test, :dev]},
       {:tailwind, "~> 0.2", only: :dev}
     ]
   end
