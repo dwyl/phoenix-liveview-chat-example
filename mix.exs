@@ -11,7 +11,7 @@ defmodule LiveviewChat.MixProject do
       aliases: aliases(),
       deps: deps(),
       test_coverage: [tool: ExCoveralls],
-      compilers: [:leex] ++ Mix.compilers(),
+      compilers: [:leex, :yecc] ++ Mix.compilers(),
       preferred_cli_env: [
         c: :test,
         coveralls: :test,
@@ -47,6 +47,7 @@ defmodule LiveviewChat.MixProject do
       {:ecto_sql, "~> 3.6"},
       {:postgrex, ">= 0.0.0"},
       {:phoenix_html, "~> 4.0"},
+      {:phoenix_html_helpers, "~> 1.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:phoenix_live_view, "~> 0.20.1"},
       {:phoenix_view, "~> 2.0"},
