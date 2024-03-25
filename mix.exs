@@ -53,7 +53,7 @@ defmodule LiveviewChat.MixProject do
       {:phoenix_view, "~> 2.0"},
       {:floki, ">= 0.30.0", only: :test},
       {:esbuild, "~> 0.2", runtime: Mix.env() == :dev},
-      {:telemetry_metrics, "~> 0.6"},
+      {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 0.18"},
       {:jason, "~> 1.2"},
