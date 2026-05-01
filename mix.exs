@@ -60,7 +60,8 @@ defmodule LiveviewChat.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:auth_plug, "~> 1.4"},
       {:excoveralls, "~> 0.18.0", only: [:test, :dev]},
-      {:tailwind, "~> 0.2", only: :dev}
+      {:tailwind, "~> 0.2", only: :dev},
+      {:lazy_html, ">= 0.1.0", only: :test}
     ]
   end
 
